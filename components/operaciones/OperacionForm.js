@@ -89,7 +89,8 @@ export default function OperacionForm({ onSubmit, nextReceiptNumber, initialData
     }
 
     // Adjust sign: everything is negative except investments
-    const finalMonto = formData.tipo === 'deposito-inversiones' ? Math.abs(montoNum) : -Math.abs(montoNum)
+    const isPositive = formData.tipo === 'deposito-inversiones' || formData.tipo === 'inversion-retiro'
+    const finalMonto = isPositive ? Math.abs(montoNum) : -Math.abs(montoNum)
 
     const [yyyy, mm, dd] = String(formData.fecha).split('-').map(v => parseInt(v, 10))
     const now = new Date()
@@ -99,7 +100,7 @@ export default function OperacionForm({ onSubmit, nextReceiptNumber, initialData
       fecha: fechaLocal.toISOString(),
       tipo: formData.tipo,
       receptor: formData.receptor || null,
-      descripcion: formData.descripcion,
+      descripcion: (formData.tipo === 'inversion-retiro' && !formData.descripcion.trim()) ? 'Inversion-Retiro de fondos' : formData.descripcion,
       monto: finalMonto,
       moneda: formData.moneda,
       referencia: formData.referencia || null,
@@ -162,6 +163,7 @@ export default function OperacionForm({ onSubmit, nextReceiptNumber, initialData
             <option value="operacion">Depósito/Retiro Bancario</option>
             <option value="deposito-inversiones">Deposito - Inversiones</option>
             <option value="deposito-bocas">Deposito Bocas de Cobranzas</option>
+            <option value="inversion-retiro">Inversion-Retiro de fondos</option>
           </select>
         </div>
 

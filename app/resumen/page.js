@@ -113,7 +113,7 @@ export default function ResumenPage() {
       setSummaryData(processed.summaryData)
       setRawMovements(combinedMovs)
 
-      const inversiones = (resMovs.data || []).filter(m => m.tipo === 'deposito-inversiones');
+      const inversiones = (resMovs.data || []).filter(m => m.tipo === 'deposito-inversiones' || m.tipo === 'inversion-retiro');
       setInversionesList(inversiones);
 
       // 3. Fetch Saldo Anterior
