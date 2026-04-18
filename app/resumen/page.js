@@ -773,6 +773,7 @@ export default function ResumenPage() {
                       {formatCurrency(
                         (Object.values(summaryData.servicios).reduce((a,b)=>a+b,0) + 
                           summaryData.ingresosOtros.inversiones + 
+                          summaryData.ingresosOtros.inversionRetiro + 
                           metrics.totalIngresoTiendaSistema + 
                           saldoAnterior) - 
                         (Object.values(summaryData.egresos).reduce((a,b)=>a+b,0))
