@@ -161,6 +161,7 @@ export default function OperacionForm({ onSubmit, nextReceiptNumber, initialData
             <option value="transferencia">Transferencia entre Cajas</option>
             <option value="operacion">Depósito/Retiro Bancario</option>
             <option value="deposito-inversiones">Deposito - Inversiones</option>
+            <option value="deposito-bocas">Deposito Bocas de Cobranzas</option>
           </select>
         </div>
 
