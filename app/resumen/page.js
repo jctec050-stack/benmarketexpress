@@ -204,6 +204,7 @@ export default function ResumenPage() {
   const handleCerrarDia = async () => {
     const totalIngresos = Object.values(summaryData.servicios).reduce((a,b)=>a+b,0) + 
                          summaryData.ingresosOtros.inversiones + 
+                         summaryData.ingresosOtros.inversionRetiro + 
                          metrics.totalIngresoTiendaSistema + 
                          saldoAnterior;
     const totalEgresos = Object.values(summaryData.egresos).reduce((a,b)=>a+b,0);
@@ -688,6 +689,12 @@ export default function ResumenPage() {
                       <span className="font-black text-gray-900">{formatCurrency(summaryData.ingresosOtros.inversiones)}</span>
                     </div>
                   )}
+                  {summaryData.ingresosOtros.inversionRetiro > 0 && (
+                    <div className="flex justify-between items-center px-5 py-3.5 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-all cursor-default">
+                      <span className="uppercase font-bold text-gray-500 text-xs tracking-wider">Inversiones-Retiro de fondos</span>
+                      <span className="font-black text-gray-900">{formatCurrency(summaryData.ingresosOtros.inversionRetiro)}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between items-center px-5 py-4 bg-green-50/50 rounded-2xl border border-green-100 shadow-sm mt-4">
                     <span className="uppercase font-bold text-green-700 text-xs tracking-wider">Efectivo (Ventas)</span>
                     <span className="font-black text-green-700 text-lg">{formatCurrency(metrics.totalIngresoTiendaSistema)}</span>
@@ -706,6 +713,7 @@ export default function ResumenPage() {
                       {formatCurrency(
                         Object.values(summaryData.servicios).reduce((a,b)=>a+b,0) + 
                         summaryData.ingresosOtros.inversiones + 
+                        summaryData.ingresosOtros.inversionRetiro + 
                         metrics.totalIngresoTiendaSistema + 
                         saldoAnterior
                       )}
