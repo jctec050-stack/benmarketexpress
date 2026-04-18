@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react'
 import { parseCurrency, formatInputNumber } from '@/lib/utils'
 import { useNotifications } from '@/context/NotificationContext'
 
-export default function OperacionForm({ onSubmit, nextReceiptNumber }) {
-  const { error: notifyError, warning } = useNotifications()
+export default function OperacionForm({ onSubmit, nextReceiptNumber, initialData = null, onCancelEdit }) {
+  const { error: notifyError, warning, success } = useNotifications()
   const [formData, setFormData] = useState({
     fecha: (() => {
       const now = new Date()
@@ -22,10 +22,41 @@ export default function OperacionForm({ onSubmit, nextReceiptNumber }) {
   })
 
   useEffect(() => {
-    if (nextReceiptNumber && formData.tipo === 'operacion') {
+    if (initialData) {
+      setFormData({
+        fecha: initialData.fecha ? initialData.fecha.split('T')[0] : '',
+        tipo: initialData.tipo || 'gasto',
+        receptor: initialData.receptor || '',
+        descripcion: initialData.descripcion || '',
+        monto: Math.abs(initialData.monto || 0),
+        moneda: initialData.moneda || 'gs',
+        referencia: initialData.referencia || '',
+        numeroRecibo: initialData.numeroRecibo || ''
+      })
+    } else {
+      // Reset to default
+      setFormData({
+        fecha: (() => {
+          const now = new Date()
+          const tzOffsetMs = now.getTimezoneOffset() * 60000
+          return new Date(now.getTime() - tzOffsetMs).toISOString().slice(0, 10)
+        })(),
+        tipo: 'gasto',
+        receptor: '',
+        descripcion: '',
+        monto: '',
+        moneda: 'gs',
+        referencia: '',
+        numeroRecibo: ''
+      })
+    }
+  }, [initialData])
+
+  useEffect(() => {
+    if (nextReceiptNumber && formData.tipo === 'operacion' && !initialData) {
       setFormData(prev => ({ ...prev, numeroRecibo: nextReceiptNumber }))
     }
-  }, [nextReceiptNumber, formData.tipo])
+  }, [nextReceiptNumber, formData.tipo, initialData])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -93,7 +124,7 @@ export default function OperacionForm({ onSubmit, nextReceiptNumber }) {
   return (
     <div className="bg-white rounded-lg shadow p-6 mb-8">
       <h3 className="text-xl font-bold text-gray-800 border-b-2 border-gray-800 pb-2 mb-6">
-        Registrar Operación / Gasto
+        {initialData ? 'Editar Operación / Gasto' : 'Registrar Operación / Gasto'}
       </h3>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -242,12 +273,21 @@ export default function OperacionForm({ onSubmit, nextReceiptNumber }) {
         </div>
 
         {/* Botones */}
-        <div className="flex justify-end pt-4 border-t border-gray-100">
+        <div className="flex justify-end pt-4 border-t border-gray-100 gap-3">
+          {initialData && (
+            <button
+              type="button"
+              onClick={onCancelEdit}
+              className="px-6 py-3 bg-white text-gray-700 font-bold rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors"
+            >
+              Cancelar
+            </button>
+          )}
           <button
             type="submit"
-            className="px-6 py-3 bg-gray-800 text-white font-bold rounded-lg hover:bg-gray-900 shadow-md transition-transform transform hover:scale-105"
+            className={`px-6 py-3 ${initialData ? 'bg-blue-600' : 'bg-gray-800'} text-white font-bold rounded-lg hover:opacity-90 shadow-md transition-transform transform hover:scale-105`}
           >
-            Guardar Movimiento
+            {initialData ? 'Guardar Cambios' : 'Guardar Movimiento'}
           </button>
         </div>
       </form>

@@ -30,6 +30,7 @@ export default function OperacionesPage() {
   const router = useRouter()
 
   const [nextReceiptNumber, setNextReceiptNumber] = useState(null)
+  const [editingOperacion, setEditingOperacion] = useState(null)
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -54,22 +55,29 @@ export default function OperacionesPage() {
       ...operacion,
       caja: selectedCaja,
       cajero: profile?.username || user?.email || 'unknown',
-      usuarioId: user?.id
+      usuarioId: user?.id,
+      ...(editingOperacion?.id ? { id: editingOperacion.id } : {})
     }
     
     const res = await addMovimiento(newOperacion)
     
     if (res.success) {
-      success('Operación Guardada', 'El movimiento se registró con éxito.')
+      success(
+        editingOperacion ? 'Operación Actualizada' : 'Operación Guardada', 
+        editingOperacion ? 'El registro fue modificado con éxito.' : 'El movimiento se registró con éxito.'
+      )
       
-      // Auto-generate receipt if it's bank operation
-      if (newOperacion.tipo === 'operacion') {
+      // Auto-generate receipt if it's bank operation (only on new)
+      if (newOperacion.tipo === 'operacion' && !editingOperacion) {
         try {
           exportOperacionReceiptPDF(newOperacion)
         } catch (pdfErr) {
           console.error('Error generating PDF:', pdfErr)
         }
       }
+
+      // Reset editing state
+      setEditingOperacion(null)
 
       // Refresh receipt number
       const num = await db.getNextMovimientoReceiptNumber()
@@ -78,6 +86,12 @@ export default function OperacionesPage() {
       console.error('Error saving movement:', res.error)
       notifyError('Error de Registro', res.error || 'Ocurrió un error inesperado')
     }
+  }
+
+  const handleEditClick = (op) => {
+    setEditingOperacion(op)
+    // Scroll to top where the form is
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const handleDeleteOperacion = async (id) => {
@@ -133,7 +147,12 @@ export default function OperacionesPage() {
           
           {/* Top Section: Form */}
           <div className="space-y-8">
-            <OperacionForm onSubmit={handleAddOperacion} nextReceiptNumber={nextReceiptNumber} />
+            <OperacionForm 
+              onSubmit={handleAddOperacion} 
+              nextReceiptNumber={nextReceiptNumber} 
+              initialData={editingOperacion}
+              onCancelEdit={() => setEditingOperacion(null)}
+            />
           </div>
 
           {/* Bottom Section: History */}
@@ -141,6 +160,7 @@ export default function OperacionesPage() {
              <OperacionesList 
                operaciones={movimientos} 
                onDelete={handleDeleteOperacion} 
+               onEdit={handleEditClick}
                dateFilter={selectedDate}
                setDateFilter={setSelectedDate}
                cajaFilter={selectedCaja}
