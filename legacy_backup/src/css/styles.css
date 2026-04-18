@@ -1,0 +1,2964 @@
+/* Variables CSS */
+:root {
+    --color-primario: #D32F2F;
+    --color-primario-hover: #B71C1C;
+    --color-primario-light: #EF5350;
+    --color-secundario: #424242;
+    --color-exito: #388E3C;
+    --color-peligro: #C62828;
+    --color-advertencia: #F57C00;
+    --color-fondo: #FAFAFA;
+    --color-texto: #212121;
+    --color-borde: #E0E0E0;
+    --sombra: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    --sombra-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Reset y estilos base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background-color: var(--color-fondo);
+    color: var(--color-texto);
+    line-height: 1.6;
+}
+
+/* Navegación */
+.navbar {
+    width: 100%;
+    background: linear-gradient(135deg, #D32F2F 0%, #B71C1C 100%);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 3px solid rgba(255, 255, 255, 0.1);
+}
+
+.nav-container {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1.5rem 1.5rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    position: relative;
+}
+
+.navbar-logo {
+    height: 80px;
+    width: auto;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease;
+}
+
+.navbar-logo:hover {
+    transform: scale(1.05);
+}
+
+.nav-menu {
+    display: flex;
+    list-style: none;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 600;
+    padding: 0.625rem 1.25rem;
+    border-radius: 0.5rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    font-size: 0.95rem;
+    letter-spacing: 0.3px;
+}
+
+.nav-link::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: white;
+    transform: translateX(-50%);
+    transition: width 0.3s ease;
+}
+
+.nav-link:hover {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.nav-link:hover::before {
+    width: 80%;
+}
+
+.nav-link.activo {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    font-weight: 700;
+}
+
+.nav-link.activo::before {
+    width: 80%;
+}
+
+/* Usuario en navbar */
+.nav-usuario {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: white;
+}
+
+.nav-usuario span {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.nav-link-logout {
+    text-decoration: none;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    font-size: 0.9rem;
+}
+
+.nav-link-logout:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.5);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* Contenedor principal */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+/* Secciones */
+.seccion {
+    display: none;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.seccion.activa {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.seccion h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    color: var(--color-texto);
+}
+
+/* Formularios */
+.formulario-arqueo,
+.formulario-gastos {
+    background: white;
+    padding: 2rem;
+    border-radius: 0.5rem;
+    box-shadow: var(--sombra);
+    margin-bottom: 2rem;
+}
+
+.form-grupo {
+    margin-bottom: 1.5rem;
+}
+
+.form-grupo label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--color-texto);
+}
+
+.form-grupo input,
+.form-grupo select,
+.form-grupo textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--color-borde);
+    border-radius: 0.375rem;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-grupo input:focus,
+.form-grupo select:focus,
+.form-grupo textarea:focus {
+    outline: none;
+    border-color: var(--color-primario);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.formulario-gastos input[inputmode="numeric"] {
+    text-align: right;
+}
+
+
+.form-grupo textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* Grids y layouts */
+.cotizacion-grid,
+.servicio-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.layout-grid-columnas {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+    align-items: start;
+    margin-bottom: 2rem;
+}
+
+
+/* Tablas */
+.tabla-conteo {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    background: white;
+    border-radius: 0.375rem;
+    overflow: hidden;
+    box-shadow: var(--sombra);
+}
+
+.tabla-conteo th,
+.tabla-conteo td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid var(--color-borde);
+}
+
+.tabla-conteo th {
+    background-color: #f1f5f9;
+    font-weight: 600;
+    color: var(--color-texto);
+}
+
+.tabla-conteo input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--color-borde);
+    border-radius: 0.25rem;
+    text-align: right;
+}
+
+.tabla-conteo .monto-parcial {
+    text-align: right;
+    font-weight: 500;
+}
+
+/* Totales */
+.total-efectivo {
+    text-align: right;
+    margin-top: 1rem;
+    padding: 1rem;
+    background-color: #f1f5f9;
+    border-radius: 0.375rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.total-efectivo.resta {
+    background-color: transparent;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--color-secundario);
+    display: flex;
+    justify-content: space-between;
+}
+
+.total-efectivo.final {
+    background-color: #e0e7ff;
+    color: var(--color-primario);
+}
+
+.total-moneda-extranjera {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 1rem;
+    background-color: #f8fafc;
+    border-top: 1px solid var(--color-borde);
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--color-secundario);
+}
+
+/* Secciones de formulario */
+.cotizaciones,
+.conteo-efectivo,
+.ingresos-no-efectivo,
+.servicios {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background-color: #f8fafc;
+    border-radius: 0.5rem;
+    border: 1px solid var(--color-borde);
+}
+
+/* Tabla de servicios */
+.tabla-servicios {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    background: white;
+    border-radius: 0.375rem;
+    overflow: hidden;
+    box-shadow: var(--sombra);
+}
+
+.tabla-servicios th,
+.tabla-servicios td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid var(--color-borde);
+}
+
+.tabla-servicios th {
+    background-color: #f1f5f9;
+    font-weight: 600;
+    color: var(--color-texto);
+    text-align: center;
+}
+
+.tabla-servicios td:first-child {
+    font-weight: 500;
+    color: var(--color-texto);
+}
+
+.tabla-servicios td:nth-child(2),
+.tabla-servicios td:nth-child(3) {
+    text-align: center;
+}
+
+.tabla-servicios input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--color-borde);
+    border-radius: 0.25rem;
+    text-align: center;
+}
+
+.tabla-servicios td:nth-child(2) {
+    width: 30%;
+}
+
+.tabla-servicios td:nth-child(3) {
+    width: 30%;
+}
+
+/* Tablas de Resumen de Servicios - Estilo Excel */
+.tabla-servicio-excel {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    background: white;
+    box-shadow: var(--sombra);
+    border: 1px solid #212121;
+}
+
+.tabla-servicio-excel thead {
+    background: white;
+}
+
+.tabla-servicio-excel .servicio-header th {
+    background: #f8f9fa;
+    color: #374151;
+    padding: 0.75rem;
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border: 1px solid #212121;
+}
+
+.tabla-servicio-excel .servicio-subheader th {
+    background: #f8f9fa;
+    color: #374151;
+    padding: 0.65rem 0.5rem;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border: 1px solid #212121;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.tabla-servicio-excel tbody td {
+    padding: 0.65rem 0.5rem;
+    border: 1px solid #212121;
+    color: #212121;
+    background: white;
+}
+
+.tabla-servicio-excel tbody tr:hover {
+    background-color: #f5f5f5;
+    transition: background-color 0.15s ease;
+}
+
+.tabla-servicio-excel tfoot .servicio-totales td {
+    background: #f3f4f6;
+    color: #212121;
+    padding: 0.75rem 0.5rem;
+    border: 1px solid #212121;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.tabla-servicio-container {
+    margin-bottom: 2rem;
+}
+
+/* Botones */
+.form-botones {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 0.375rem;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-primario {
+    background-color: var(--color-primario);
+    color: white;
+}
+
+.btn-primario:hover {
+    background-color: #1d4ed8;
+    transform: translateY(-1px);
+    box-shadow: var(--sombra-lg);
+}
+
+.btn-secundario {
+    background-color: var(--color-secundario);
+    color: white;
+}
+
+.btn-secundario:hover {
+    background-color: #475569;
+}
+
+.btn-excel {
+    background-color: var(--color-exito);
+    color: white;
+}
+
+.btn-excel:hover {
+    background-color: #059669;
+}
+
+.btn-adicional {
+    background-color: transparent;
+    color: var(--color-primario);
+    border: 1px solid var(--color-primario);
+}
+
+.btn-adicional:hover {
+    background-color: #eff6ff;
+}
+
+/* Resumen de tesorería */
+.resumen-filtros {
+    display: flex;
+    gap: 1rem;
+    align-items: end;
+    margin-bottom: 2rem;
+    background: white;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    box-shadow: var(--sombra);
+}
+
+.resumen-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.resumen-card {
+    background: white;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    box-shadow: var(--sombra);
+}
+
+.resumen-card h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: var(--color-texto);
+}
+
+.resumen-datos {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.resumen-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--color-borde);
+}
+
+.resumen-item:last-child {
+    border-bottom: none;
+    font-weight: 600;
+    font-size: 1.125rem;
+}
+
+.resumen-totales {
+    display: grid;
+    gap: 1rem;
+}
+
+.total-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem;
+    background-color: #f8fafc;
+    border-radius: 0.375rem;
+    font-weight: 500;
+}
+
+.total-item.positivo {
+    color: var(--color-exito);
+}
+
+.total-item.negativo {
+    color: var(--color-peligro);
+}
+
+/* Lista de movimientos */
+.movimientos-lista {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.movimiento-item {
+    padding: 1rem;
+    border: 1px solid var(--color-borde);
+    border-radius: 0.375rem;
+    margin-bottom: 0.75rem;
+    background: white;
+}
+
+.movimiento-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-bottom: 0.75rem;
+}
+
+.movimiento-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.movimiento-titulo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.movimiento-tipo {
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 1rem;
+    flex: 1;
+}
+
+.movimiento-monto {
+    font-weight: 700;
+    font-size: 1.25rem;
+}
+
+.movimiento-monto.positivo {
+    color: var(--color-exito) !important;
+}
+
+.movimiento-monto.negativo {
+    color: var(--color-peligro) !important;
+}
+
+.movimiento-fecha-hora {
+    font-size: 0.875rem;
+    color: #64748b;
+    margin-top: 0.25rem;
+}
+
+.movimiento-cajero-caja {
+    font-size: 0.875rem;
+    color: #64748b;
+    display: flex;
+    gap: 1.5rem;
+}
+
+.movimiento-detalles {
+    font-size: 0.875rem;
+    color: var(--color-secundario);
+}
+
+.movimiento-acciones {
+    margin-top: 0.5rem;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-accion {
+    background: none;
+    border: 1px solid var(--color-borde);
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: background-color 0.2s;
+}
+
+.btn-accion.editar:hover {
+    background-color: #eff6ff;
+    color: var(--color-primario);
+}
+
+.btn-accion.eliminar:hover {
+    background-color: #fee2e2;
+    color: var(--color-peligro);
+}
+
+.movimiento-item.arqueo-item {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.movimiento-item.arqueo-item:hover {
+    background-color: #f8fafc;
+}
+
+/* === ESTILOS PARA VISTA EXCEL EN DESKTOP === */
+
+/* Contenedor de tabla para resumen */
+.lista-movimientos-reporte {
+    width: 100%;
+    overflow-x: auto;
+}
+
+/* Tabla estilo Excel - Solo visible en desktop */
+.tabla-resumen-excel {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.tabla-resumen-excel thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #f1f5f9;
+}
+
+.tabla-resumen-excel th {
+    padding: 0.75rem 0.5rem;
+    text-align: left;
+    font-weight: 600;
+    color: var(--color-texto);
+    border: 1px solid #e2e8f0;
+    background: linear-gradient(to bottom, #f8fafc, #f1f5f9);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.tabla-resumen-excel th:last-child {
+    text-align: right;
+}
+
+.tabla-resumen-excel td {
+    padding: 0.65rem 0.5rem;
+    border: 1px solid #e2e8f0;
+    color: var(--color-texto);
+}
+
+.tabla-resumen-excel td:last-child {
+    text-align: right;
+    font-weight: 600;
+}
+
+/* Zebra striping para filas */
+.tabla-resumen-excel tbody tr:nth-child(even) {
+    background-color: #f9fafb;
+}
+
+.tabla-resumen-excel tbody tr:nth-child(odd) {
+    background-color: white;
+}
+
+.tabla-resumen-excel tbody tr:hover {
+    background-color: #f0f9ff;
+    transition: background-color 0.15s ease;
+}
+
+/* Columnas específicas */
+.tabla-resumen-excel .col-fecha {
+    width: 12%;
+    white-space: nowrap;
+}
+
+.tabla-resumen-excel .col-hora {
+    width: 10%;
+    white-space: nowrap;
+}
+
+.tabla-resumen-excel .col-caja {
+    width: 12%;
+}
+
+.tabla-resumen-excel .col-cajero {
+    width: 15%;
+}
+
+.tabla-resumen-excel .col-descripcion {
+    width: 36%;
+}
+
+.tabla-resumen-excel .col-monto {
+    width: 15%;
+    font-family: 'Courier New', monospace;
+}
+
+/* Estilos para montos positivos y negativos */
+.tabla-resumen-excel .monto-positivo {
+    color: var(--color-exito);
+}
+
+.tabla-resumen-excel .monto-negativo {
+    color: var(--color-peligro);
+}
+
+/* Mensaje cuando no hay datos */
+.tabla-resumen-excel-vacia {
+    text-align: center;
+    padding: 2rem;
+    color: var(--color-secundario);
+    font-style: italic;
+}
+
+/* Hamburger Menu Base Styles */
+.nav-header {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.hamburger {
+    display: none;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    padding: 0.5rem;
+    z-index: 101;
+}
+
+.bar {
+    display: block;
+    width: 25px;
+    height: 3px;
+    margin: 5px auto;
+    transition: all 0.3s ease-in-out;
+    background-color: white;
+    border-radius: 2px;
+}
+
+/* === RESPONSIVE: Desktop (≥992px) === */
+@media (min-width: 992px) {
+
+    /* Mostrar tabla en desktop */
+    .lista-movimientos-reporte .tabla-resumen-excel {
+        display: table;
+    }
+
+    /* Ocultar tarjetas en desktop */
+    .lista-movimientos-reporte .movimiento-item {
+        display: none;
+    }
+
+    /* Ajustar altura máxima para scroll */
+    .lista-movimientos-reporte {
+        max-height: 500px;
+        overflow-y: auto;
+    }
+}
+
+/* === RESPONSIVE: Mobile (<992px) === */
+@media (max-width: 991px) {
+
+    /* Ocultar tabla en móvil */
+    .lista-movimientos-reporte .tabla-resumen-excel {
+        display: none;
+    }
+
+    /* Mostrar tarjetas en móvil */
+    .lista-movimientos-reporte .movimiento-item {
+        display: block;
+    }
+}
+
+/* Historial de gastos */
+.historial-gastos {
+    background: white;
+    padding: 2rem;
+    border-radius: 0.5rem;
+    box-shadow: var(--sombra);
+    margin-top: 2rem;
+}
+
+.historial-gastos h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: var(--color-texto);
+}
+
+.filtros-historial {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.lista-movimientos {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+/* --- Diseño Responsivo --- */
+
+/* Para tablets y pantallas medianas (hasta 992px) */
+@media (max-width: 992px) {
+    .nav-menu {
+        gap: 0.5rem;
+    }
+
+    .navbar-logo {
+        height: 60px;
+    }
+
+    .nav-link {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.85rem;
+    }
+
+    /* Grids de formularios */
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .layout-grid-columnas {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Para celulares (hasta 768px) */
+@media (max-width: 768px) {
+
+    /* Ajustes generales para pantallas pequeñas */
+    .container {
+        padding: 1rem;
+    }
+
+    .seccion h2 {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    /* --- Navegación --- */
+    .nav-container {
+        padding: 1rem;
+        gap: 0;
+    }
+
+    .nav-header {
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .navbar-logo {
+        height: 50px;
+    }
+
+    .hamburger {
+        display: block;
+    }
+
+    .hamburger.active .bar:nth-child(2) {
+        opacity: 0;
+    }
+
+    .hamburger.active .bar:nth-child(1) {
+        transform: translateY(8px) rotate(45deg);
+    }
+
+    .hamburger.active .bar:nth-child(3) {
+        transform: translateY(-8px) rotate(-45deg);
+    }
+
+    .nav-menu {
+        display: none;
+        flex-direction: column;
+        gap: 0.5rem;
+        width: 100%;
+        background: rgba(0, 0, 0, 0.1);
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin-top: 0.5rem;
+    }
+
+    .nav-menu.active {
+        display: flex;
+        animation: fadeIn 0.3s;
+    }
+
+    .nav-link {
+        padding: 0.8rem;
+        font-size: 1rem;
+        text-align: center;
+        display: block;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.05);
+    }
+    
+    .nav-link:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    .nav-usuario {
+        display: none;
+        position: static;
+        width: 100%;
+        justify-content: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-top: 0;
+        padding: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(0, 0, 0, 0.1);
+        border-radius: 0 0 0.5rem 0.5rem;
+    }
+
+    .nav-usuario.active {
+        display: flex;
+        animation: fadeIn 0.3s;
+    }
+
+    .nav-usuario span {
+        font-size: 1rem;
+        width: 100%;
+        text-align: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .nav-link-logout {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+    }
+
+    /* --- Formularios y Filtros --- */
+    .formulario-arqueo,
+    .formulario-gastos {
+        padding: 1rem;
+    }
+
+    .form-grid,
+    .cotizacion-grid,
+    .servicio-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .resumen-filtros {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filtros-historial {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    /* --- Botones --- */
+    .form-botones,
+    .form-botones-modales {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+    }
+
+    /* --- Grids --- */
+    .resumen-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* --- Tablas Responsivas --- */
+    .tabla-conteo,
+    .tabla-servicios {
+        font-size: 0.85rem;
+    }
+
+    .tabla-conteo th,
+    .tabla-conteo td,
+    .tabla-servicios th,
+    .tabla-servicios td {
+        padding: 0.5rem 0.25rem;
+    }
+
+    /* Scroll horizontal para tablas si es necesario */
+    .tabla-conteo,
+    .tabla-servicios {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* --- Headers de sección --- */
+    #header-ingresos {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 1rem;
+    }
+
+    #header-ingresos>div {
+        width: 100%;
+    }
+
+    /* --- Layouts de dos columnas --- */
+    div[style*="grid-template-columns: 1fr 1fr"] {
+        display: block !important;
+    }
+
+    div[style*="grid-template-columns: 1fr 1fr"]>div {
+        margin-bottom: 1.5rem;
+    }
+
+    /* --- Modales --- */
+    .modal-contenido {
+        width: 95%;
+        margin: 1rem auto;
+    }
+
+    .modal-body {
+        padding: 1rem;
+    }
+
+    /* --- Totales --- */
+    .totales-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* --- Historial --- */
+    .historial-gastos {
+        padding: 1rem;
+    }
+
+    .movimiento-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .movimiento-acciones {
+        flex-wrap: wrap;
+    }
+}
+
+/* Utilidades */
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.text-left {
+    text-align: left;
+}
+
+.mt-1 {
+    margin-top: 0.25rem;
+}
+
+.mt-2 {
+    margin-top: 0.5rem;
+}
+
+.mt-4 {
+    margin-top: 1rem;
+}
+
+.mb-1 {
+    margin-bottom: 0.25rem;
+}
+
+.mb-2 {
+    margin-bottom: 0.5rem;
+}
+
+.mb-4 {
+    margin-bottom: 1rem;
+}
+
+.p-2 {
+    padding: 0.5rem;
+}
+
+.p-4 {
+    padding: 1rem;
+}
+
+/* Animaciones de carga */
+.loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid var(--color-primario);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.form-botones-modales {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    justify-content: center;
+}
+
+/* Estilos para el Modal */
+.modal {
+    display: none;
+    /* Oculto por defecto */
+    position: fixed;
+    z-index: 1001;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-contenido {
+    background-color: #fff;
+    margin: auto;
+    border-radius: 0.5rem;
+    box-shadow: var(--sombra-lg);
+    width: 90%;
+    max-width: 600px;
+    animation: fadeIn 0.3s;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--color-borde);
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.modal-cerrar {
+    color: var(--color-secundario);
+    font-size: 2rem;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.modal-cerrar:hover {
+    color: var(--color-texto);
+}
+
+.modal-body {
+    padding: 1.5rem;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+/* Estilos para el detalle del arqueo en el modal */
+.detalle-arqueo .detalle-seccion {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--color-borde);
+}
+
+.detalle-arqueo .detalle-seccion:last-child {
+    border-bottom: none;
+}
+
+.detalle-arqueo h5 {
+    font-size: 1.1rem;
+    color: var(--color-primario);
+    margin-bottom: 0.75rem;
+}
+
+.detalle-arqueo p {
+    display: flex;
+    justify-content: space-between;
+}
+
+.detalle-arqueo .tabla-detalle {
+    width: 100%;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+    border-collapse: collapse;
+}
+
+.detalle-arqueo .tabla-detalle th,
+.detalle-arqueo .tabla-detalle td {
+    padding: 0.5rem;
+    border: 1px solid var(--color-borde);
+    text-align: right;
+}
+
+.detalle-arqueo .tabla-detalle th {
+    background-color: #f1f5f9;
+    text-align: center;
+}
+
+.detalle-arqueo .tabla-detalle td:first-child {
+    text-align: left;
+}
+
+.detalle-arqueo .total-final p {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+/* Estilos para el resumen de arqueo guardado */
+#resumenArqueoGuardado {
+    margin-top: 2rem;
+}
+
+.resumen-guardado-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 0.5rem;
+    box-shadow: var(--sombra);
+}
+
+.resumen-guardado-card h3 {
+    text-align: center;
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+/* Estilos de impresión */
+@media print {
+    body {
+        background-color: white;
+    }
+
+    .navbar,
+    .formulario-arqueo,
+    .seccion:not(.activa),
+    .no-imprimir,
+    .historial-gastos,
+    .movimiento-acciones,
+    .modal {
+        display: none !important;
+    }
+
+    main.container {
+        max-width: 100%;
+        padding: 0;
+        margin: 0;
+    }
+
+    .resumen-guardado-card {
+        box-shadow: none;
+        border: 1px solid #ccc;
+        padding: 1rem;
+    }
+
+    #resumenArqueoGuardado {
+        display: block !important;
+    }
+}
+
+/* Estilos para la tarjeta de resumen (Arqueo) */
+.resumen-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 0.5rem;
+    box-shadow: var(--sombra);
+    margin-bottom: 2rem;
+    border: 1px solid var(--color-borde);
+}
+
+.resumen-card h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-primario);
+}
+
+/* ============================================ */
+/* SISTEMA DE NOTIFICACIONES MODERNO */
+/* ============================================ */
+
+/* Contenedor de notificaciones */
+#notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 400px;
+}
+
+/* Notificación individual */
+.notification {
+    background: white;
+    padding: 1rem 1.25rem;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 320px;
+    animation: slideInRight 0.3s ease-out;
+    border-left: 4px solid;
+    position: relative;
+    overflow: hidden;
+}
+
+.notification::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: currentColor;
+    animation: progressBar 3s linear;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutRight {
+    to {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+}
+
+@keyframes progressBar {
+    from {
+        width: 100%;
+    }
+
+    to {
+        width: 0%;
+    }
+}
+
+.notification.hiding {
+    animation: slideOutRight 0.3s ease-in forwards;
+}
+
+/* Iconos de notificación */
+.notification-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+/* Contenido de notificación */
+.notification-content {
+    flex: 1;
+}
+
+.notification-title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 2px;
+}
+
+.notification-message {
+    font-size: 0.875rem;
+    color: #64748b;
+    line-height: 1.4;
+}
+
+/* Botón cerrar */
+.notification-close {
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    color: #94a3b8;
+    cursor: pointer;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.notification-close:hover {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+/* Tipos de notificación */
+.notification.success {
+    border-left-color: #10b981;
+}
+
+.notification.success .notification-icon {
+    color: #10b981;
+}
+
+.notification.error {
+    border-left-color: #ef4444;
+}
+
+.notification.error .notification-icon {
+    color: #ef4444;
+}
+
+.notification.warning {
+    border-left-color: #f59e0b;
+}
+
+.notification.warning .notification-icon {
+    color: #f59e0b;
+}
+
+.notification.info {
+    border-left-color: #3b82f6;
+}
+
+.notification.info .notification-icon {
+    color: #3b82f6;
+}
+
+/* ============================================ */
+/* DIÁLOGOS DE CONFIRMACIÓN MODERNOS */
+/* ============================================ */
+
+.dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.dialog-box {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    max-width: 450px;
+    width: 90%;
+    animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.dialog-header {
+    padding: 1.5rem 1.5rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.dialog-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.dialog-icon.warning {
+    color: #f59e0b;
+}
+
+.dialog-icon.danger {
+    color: #ef4444;
+}
+
+.dialog-icon.info {
+    color: #3b82f6;
+}
+
+.dialog-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.dialog-body {
+    padding: 0 1.5rem 1.5rem;
+}
+
+.dialog-message {
+    color: #64748b;
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+.dialog-footer {
+    padding: 1rem 1.5rem;
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+    border-radius: 0 0 12px 12px;
+}
+
+.dialog-btn {
+    padding: 0.625rem 1.25rem;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    min-width: 80px;
+}
+
+.dialog-btn-cancel {
+    background: white;
+    color: #64748b;
+    border: 1px solid #cbd5e1;
+}
+
+.dialog-btn-cancel:hover {
+    background: #f8fafc;
+    border-color: #94a3b8;
+}
+
+.dialog-btn-confirm {
+    background: var(--color-primario);
+    color: white;
+}
+
+.dialog-btn-confirm:hover {
+    background: var(--color-primario-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(211, 47, 47, 0.3);
+}
+
+.dialog-btn-confirm.danger {
+    background: #ef4444;
+}
+
+.dialog-btn-confirm.danger:hover {
+    background: #dc2626;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    #notification-container {
+        left: 10px;
+        right: 10px;
+        max-width: none;
+    }
+
+    .notification {
+        min-width: auto;
+    }
+
+    .dialog-box {
+        width: 95%;
+    }
+}
+
+/* ============================================ */
+/* RESUMEN PAGE - PHASE 1 IMPROVEMENTS */
+/* ============================================ */
+
+/* Dashboard Metrics Cards */
+.dashboard-metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.75rem;
+    margin: 1rem 0;
+}
+
+.metric-card {
+    background: white;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-left: 3px solid;
+    position: relative;
+    overflow: hidden;
+}
+
+.metric-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100px;
+    height: 100px;
+    opacity: 0.05;
+    border-radius: 50%;
+    transform: translate(30%, -30%);
+}
+
+.metric-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.metric-icon {
+    font-size: 1.75rem;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.metric-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.metric-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-bottom: 0.25rem;
+}
+
+.metric-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e293b;
+    line-height: 1.1;
+    margin-bottom: 0.15rem;
+}
+
+.metric-subtitle {
+    font-size: 0.65rem;
+    color: #94a3b8;
+}
+
+/* Metric Card Variants */
+.metric-efectivo {
+    border-left-color: #10b981;
+}
+
+.metric-efectivo::before {
+    background: #10b981;
+}
+
+.metric-egresos {
+    border-left-color: #ef4444;
+}
+
+.metric-egresos::before {
+    background: #ef4444;
+}
+
+.metric-tarjeta {
+    border-left-color: #3b82f6;
+}
+
+.metric-tarjeta::before {
+    background: #3b82f6;
+}
+
+.metric-credito {
+    border-left-color: #f59e0b;
+}
+
+.metric-credito::before {
+    background: #f59e0b;
+}
+
+.metric-pedidosya {
+    border-left-color: #ef4444;
+    /* Rojo tipo PedidosYa */
+}
+
+.metric-pedidosya::before {
+    background: #ef4444;
+}
+
+/* Improved Filters Section */
+.resumen-filtros {
+    background: white;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    margin-bottom: 1rem;
+}
+
+.resumen-filtros .form-grupo label {
+    font-weight: 600;
+    color: #475569;
+}
+
+.resumen-filtros input[type="date"],
+.resumen-filtros select {
+    border: 2px solid #e2e8f0;
+    transition: all 0.2s;
+}
+
+.resumen-filtros input[type="date"]:focus,
+.resumen-filtros select:focus {
+    border-color: var(--color-primario);
+    box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.1);
+}
+
+/* Enhanced Collapsible Sections */
+.resumen-card,
+.resumen-card-principal {
+    background: white;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    margin-bottom: 0.4rem;
+    overflow: visible;
+    /* Cambiado de hidden a visible para mostrar tablas completas */
+    transition: all 0.3s ease;
+}
+
+.resumen-card:hover,
+.resumen-card-principal:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.reporte-header,
+.reporte-header-principal {
+    cursor: pointer;
+    padding: 0.4rem 0.6rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(to right, #f8fafc, white);
+    border-left: 3px solid var(--color-primario);
+    transition: all 0.2s;
+    user-select: none;
+}
+
+.reporte-header:hover,
+.reporte-header-principal:hover {
+    background: linear-gradient(to right, #f1f5f9, #f8fafc);
+}
+
+.reporte-header.activo,
+.reporte-header.activo {
+    background: linear-gradient(to right, #fee2e2, #fef2f2);
+    border-left-color: var(--color-primario);
+}
+
+.reporte-header-principal.activo {
+    background: linear-gradient(to right, #fee2e2, #fef2f2);
+    border-left-color: var(--color-primario);
+}
+
+.reporte-titulo {
+    font-weight: 600;
+    /* Reducido de 700 */
+    font-size: 0.7rem;
+    /* Bastante más pequeño para detalles */
+    color: #1e293b;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.titulo-columna {
+    font-weight: 700;
+    font-size: 0.85rem;
+    /* Reducido aún más para compactar */
+    color: #1e293b;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.reporte-titulo::before {
+    content: '▶';
+    font-size: 0.75rem;
+    transition: transform 0.3s;
+    color: var(--color-primario);
+}
+
+.reporte-header.activo .reporte-titulo::before {
+    transform: rotate(90deg);
+}
+
+.reporte-total,
+.reporte-total-principal {
+    font-weight: 700;
+    font-size: 0.8rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    background: #f8fafc;
+}
+
+.reporte-total.positivo,
+.reporte-total-principal.positivo {
+    color: #10b981;
+    background: #d1fae5;
+}
+
+.reporte-total.negativo,
+.reporte-total-principal.negativo {
+    color: #ef4444;
+    background: #fee2e2;
+}
+
+.reporte-contenido {
+    padding: 0.4rem;
+    background: #fafafa;
+    transition: all 0.3s ease;
+    overflow-x: auto;
+    /* Permitir scroll horizontal */
+    overflow-y: visible;
+    /* No cortar verticalmente */
+}
+
+/* Improved Table Styling */
+.tabla-resumen-excel {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    width: 100%;
+    /* Asegurar que use todo el ancho disponible */
+    min-width: 800px;
+    /* Ancho mínimo para que se vea bien */
+}
+
+.tabla-resumen-excel thead {
+    background: linear-gradient(to bottom, #1e293b, #334155);
+}
+
+.tabla-resumen-excel th {
+    color: white;
+    font-weight: 600;
+    padding: 1rem 0.75rem;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+}
+
+.tabla-resumen-excel tbody tr {
+    transition: all 0.2s;
+}
+
+.tabla-resumen-excel tbody tr:nth-child(even) {
+    background-color: #f9fafb;
+}
+
+.tabla-resumen-excel tbody tr:nth-child(odd) {
+    background-color: white;
+}
+
+.tabla-resumen-excel tbody tr:hover {
+    background-color: #eff6ff !important;
+    transform: scale(1.005);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.tabla-resumen-excel td {
+    padding: 0.875rem 0.75rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+/* Badges for Movement Types */
+.badge-tipo {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.badge-ingreso {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.badge-egreso {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* Three-Column Layout for Resumen */
+.resumen-columnas {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.6rem;
+    margin-bottom: 0.75rem;
+    align-items: start;
+}
+
+/* Sub-sections within columns */
+.sub-seccion {
+    margin-bottom: 0.4rem;
+}
+
+.sub-seccion .reporte-header {
+    background: linear-gradient(to right, #eff6ff, #f8fafc);
+    border-left-color: #3b82f6;
+}
+
+.sub-seccion .reporte-header:hover {
+    background: linear-gradient(to right, #dbeafe, #eff6ff);
+}
+
+/* Excel export buttons container */
+.resumen-botones-excel {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+/* Ensure navbar stays fixed */
+body {
+    overflow-y: scroll;
+}
+
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+/* Center main content */
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1rem 1rem;
+}
+
+/* Center section headings */
+.seccion h2 {
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--color-texto);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1200px) {
+    .resumen-columnas {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-metrics {
+        display: flex !important;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        padding-bottom: 0.5rem;
+        gap: 1rem;
+        -webkit-overflow-scrolling: touch;
+        margin-right: -1rem;
+        /* Permite que el scroll llegue al borde */
+        padding-right: 1rem;
+    }
+
+    .metric-card {
+        min-width: 85%;
+        scroll-snap-align: center;
+        margin-bottom: 0;
+        /* Quitar margen inferior si lo tiene */
+        flex-shrink: 0;
+        /* Evitar que se encojan */
+    }
+
+    .metric-card {
+        padding: 1.25rem;
+    }
+
+    .metric-value {
+        font-size: 1.5rem;
+    }
+
+    .resumen-filtros {
+        padding: 1rem;
+        display: grid !important;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+    }
+
+    .resumen-filtros .form-grupo {
+        margin-bottom: 0;
+    }
+
+    /* El select de caja ocupa todo el ancho */
+    .resumen-filtros .form-grupo:last-child {
+        grid-column: 1 / -1;
+    }
+
+    .resumen-botones-excel {
+        width: 100%;
+    }
+
+    .resumen-botones-excel .btn {
+        flex: 1;
+    }
+}
+
+/* ============================================ */
+/* INGRESOS PAGE - IMPROVEMENTS */
+/* ============================================ */
+
+/* Improved Movimientos Table */
+.lista-movimientos {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.movimiento-item {
+    position: relative;
+    /* Para posicionar el badge absolutamente */
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+    transition: all 0.2s ease;
+    border-left: 4px solid var(--color-primario);
+}
+
+.movimiento-item:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+}
+
+.movimiento-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-bottom: 0.75rem;
+}
+
+.movimiento-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.movimiento-titulo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.movimiento-tipo {
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 1rem;
+    flex: 1;
+}
+
+.movimiento-monto {
+    font-weight: 700;
+    font-size: 1.25rem;
+}
+
+.movimiento-monto.positivo {
+    color: var(--color-exito) !important;
+}
+
+.movimiento-monto.negativo {
+    color: var(--color-peligro) !important;
+}
+
+.movimiento-fecha-hora {
+    font-size: 0.875rem;
+    color: #64748b;
+    margin-top: 0.25rem;
+}
+
+.movimiento-cajero-caja {
+    font-size: 0.875rem;
+    color: #64748b;
+    display: flex;
+    gap: 1.5rem;
+}
+
+.movimiento-acciones {
+    margin-top: 0.5rem;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.movimiento-descripcion {
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;
+}
+
+.movimiento-descripcion small {
+    color: #64748b;
+    font-size: 0.875rem;
+}
+
+.movimiento-referencia {
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;
+}
+
+.movimiento-referencia small {
+    color: #64748b;
+    font-size: 0.875rem;
+}
+
+.movimiento-recibo {
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;
+}
+
+.movimiento-recibo small {
+    color: #64748b;
+    font-size: 0.875rem;
+}
+
+.movimiento-detalles {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.movimiento-detalles p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.detalle-icono {
+    font-size: 1.1rem;
+}
+
+.movimiento-acciones {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+
+.movimiento-footer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.movimiento-info {
+    order: 1;
+}
+
+.movimiento-acciones {
+    order: 2;
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-start;
+}
+
+
+/* Modern Buttons */
+.btn-accion {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-accion.editar {
+    background: #3b82f6;
+    color: white;
+}
+
+.btn-accion.editar:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+}
+
+.btn-accion.eliminar {
+    background: #ef4444;
+    color: white;
+}
+
+.btn-accion.eliminar:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
+}
+
+/* Improved Form Buttons */
+.btn-primario {
+    background: linear-gradient(135deg, var(--color-primario), #c62828);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 2px 8px rgba(211, 47, 47, 0.3);
+}
+
+.btn-primario:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(211, 47, 47, 0.4);
+}
+
+.btn-secundario {
+    background: white;
+    color: var(--color-primario);
+    border: 2px solid var(--color-primario);
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-secundario:hover {
+    background: var(--color-primario);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(211, 47, 47, 0.3);
+}
+
+.btn-excel {
+    background: #10b981;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.btn-excel:hover {
+    background: #059669;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+}
+
+/* Collapsible Sections */
+.seccion h3 {
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.2s;
+    padding: 0.75rem;
+    border-radius: 8px;
+}
+
+.seccion h3:hover {
+    background: rgba(211, 47, 47, 0.05);
+}
+
+/* Filter Section */
+.filtros-historial {
+    background: #f8fafc;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.filtros-historial .form-grupo {
+    flex: 1;
+    min-width: 200px;
+}
+
+/* Historial Edicion Badge */
+.historial-edicion {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    display: inline-block;
+    background: #fef3c7;
+    color: #92400e;
+    padding: 0.15rem 0.5rem;
+    border-radius: 8px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    line-height: 1.2;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+}
+
+.observacion-edicion {
+    background: #fef2f2;
+    border-left: 3px solid #ef4444;
+    padding: 0.75rem;
+    margin-top: 0.5rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    color: #991b1b;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .movimiento-acciones {
+        flex-direction: column;
+    }
+
+    .btn-accion {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* ============================================ */
+/* ESTILOS PARA MODAL (Detalles Servicio) */
+/* ============================================ */
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.3s;
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 90%;
+    max-width: 800px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+    position: relative;
+    animation: slideDown 0.3s;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.cerrar-modal {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.cerrar-modal:hover,
+.cerrar-modal:focus {
+    color: var(--color-primario);
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Tabla dentro del modal */
+.modal .tabla-datos {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.modal .tabla-datos th,
+.modal .tabla-datos td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+}
+
+.modal .tabla-datos th {
+    background-color: var(--color-primario);
+    color: white;
+}
+
+.modal .tabla-datos tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+
+/* Sección Recaudación */
+.recaudacion-section {
+    margin-top: 30px;
+    background-color: white;
+    padding: 20px;
+    border-radius: var(--borde-radio-tarjeta);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.tabla-recaudacion {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    font-size: 0.95rem;
+}
+
+.tabla-recaudacion th,
+.tabla-recaudacion td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: right;
+}
+
+.tabla-recaudacion th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    text-align: center;
+    text-transform: uppercase;
+    color: #374151;
+}
+
+.tabla-recaudacion td:first-child {
+    text-align: left;
+    font-weight: 500;
+}
+
+.tabla-recaudacion tr.total-row {
+    background-color: #f3f4f6;
+    font-weight: 700;
+}
+
+.tabla-recaudacion tr.total-row td {
+    border-top: 2px solid #374151;
+}
+
+.tabla-recaudacion .positivo {
+    color: var(--color-exito);
+}
+
+.tabla-recaudacion .input-recaudacion {
+    width: 130px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    text-align: right;
+    font-size: 0.95rem;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 0.05em;
+}
+
+.tabla-recaudacion .input-recaudacion:focus {
+    outline: none;
+    border-color: var(--color-primario);
+    box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.2);
+}
+
+/* ============================================ */
+/* ESTILOS PARA RESUMEN DE SERVICIOS - TABLA EXCEL */
+/* ============================================ */
+
+.tabla-servicio-container {
+    margin-bottom: 2rem;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--color-borde);
+    border-radius: 0.375rem;
+    box-shadow: var(--sombra);
+    background: white;
+}
+
+.tabla-servicio-excel {
+    width: 100%;
+    min-width: 600px;
+    /* Forzar scroll en móviles */
+    border-collapse: collapse;
+    background: white;
+    box-shadow: none;
+    overflow: hidden;
+    border: 2px solid #212121;
+}
+
+.tabla-servicio-excel thead {
+    background: white;
+    color: #212121;
+}
+
+.tabla-servicio-excel .servicio-header th {
+    background: #f8f9fa;
+    color: #374151;
+    padding: 0.75rem;
+    text-align: left;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border: 1px solid #212121;
+}
+
+.tabla-servicio-excel .servicio-subheader th {
+    background: #f8f9fa;
+    color: #374151;
+    padding: 0.65rem;
+    text-align: center;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border: 1px solid #212121;
+    text-transform: uppercase;
+}
+
+.tabla-servicio-excel tbody tr {
+    border-bottom: 1px solid #212121;
+}
+
+.tabla-servicio-excel tbody td {
+    border-right: 1px solid #212121;
+    padding: 0.65rem 0.5rem;
+}
+
+.tabla-servicio-excel tbody td:last-child {
+    border-right: none;
+}
+
+.tabla-servicio-excel tbody tr:nth-child(even) {
+    background-color: #FAFAFA;
+}
+
+.tabla-servicio-excel tbody tr:nth-child(odd) {
+    background-color: white;
+}
+
+.tabla-servicio-excel tbody tr:hover {
+    background-color: #F5F5F5;
+}
+
+.tabla-servicio-excel tbody td {
+    padding: 0.6rem 0.75rem;
+    border: 1px solid #212121;
+    color: var(--color-texto);
+    font-size: 0.95rem;
+}
+
+.tabla-servicio-excel tfoot .servicio-totales {
+    background: #f3f4f6;
+    color: white;
+    font-weight: bold;
+}
+
+.tabla-servicio-excel tfoot .servicio-totales td {
+    padding: 0.75rem;
+    border: 1px solid #B71C1C;
+    font-size: 1rem;
+}
+
+/* Mensaje cuando no hay servicios */
+.sin-resultados {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #64748b;
+    font-size: 1rem;
+    background: white;
+    border-radius: 0.5rem;
+    box-shadow: var(--sombra);
+}
+
+/* Responsive para tablas de servicios */
+@media (max-width: 768px) {
+    .tabla-servicio-excel {
+        font-size: 0.85rem;
+    }
+
+    .tabla-servicio-excel .servicio-header th {
+        font-size: 1rem;
+        padding: 0.6rem;
+    }
+
+    .tabla-servicio-excel .servicio-subheader th {
+        font-size: 0.8rem;
+        padding: 0.5rem 0.25rem;
+    }
+
+    .tabla-servicio-excel tbody td {
+        padding: 0.5rem 0.4rem;
+        font-size: 0.85rem;
+    }
+
+    .tabla-servicio-excel tfoot .servicio-totales td {
+        padding: 0.6rem 0.4rem;
+        font-size: 0.9rem;
+    }
+}
+
+/* Estilos para el Modal de Métricas */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0, 0, 0);
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 10% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 60%;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.close-modal {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close-modal:hover,
+.close-modal:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Hacer las tarjetas clicables */
+.metric-card {
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.metric-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* ============================================ */
+/* TABLA INGRESOS/EGRESOS - Excel Style */
+/* ============================================ */
+
+.tabla-ingresos-egresos {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #000;
+}
+
+.tabla-ingresos-egresos thead th {
+    background-color: #1e3a8a;
+    color: white;
+    padding: 12px 8px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1rem;
+    border: 1px solid #000;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.tabla-ingresos-egresos tbody td {
+    padding: 0;
+    border: 1px solid #000;
+    vertical-align: top;
+    background: white;
+}
+
+.tabla-ingresos-egresos tbody tr:hover td {
+    background-color: #f9fafb;
+}
+
+.tabla-ingresos-egresos .total-row td {
+    background-color: #f3f4f6 !important;
+    font-weight: bold;
+    border-top: 2px solid #000;
+}
+
+.tabla-ingresos-egresos .total-general-row td {
+    background-color: #e0e7ff !important;
+    font-weight: bold;
+    border-top: 2px solid #000;
+}
+
+/* Responsive para tabla ingresos/egresos */
+@media (max-width: 768px) {
+    .tabla-ingresos-egresos {
+        font-size: 0.85rem;
+    }
+
+    .tabla-ingresos-egresos thead th {
+        padding: 8px 4px;
+        font-size: 0.9rem;
+    }
+}
+
+/* ============================================ */
+/* BOTÓN EXPORTAR A EXCEL - DISEÑO MODERNO */
+/* ============================================ */
+
+.btn-exportar {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: white;
+    background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4),
+        0 2px 4px rgba(0, 0, 0, 0.1);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-exportar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s ease;
+}
+
+.btn-exportar:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5),
+        0 4px 8px rgba(0, 0, 0, 0.15);
+    background: linear-gradient(135deg, #34d399 0%, #10b981 50%, #059669 100%);
+}
+
+.btn-exportar:hover::before {
+    left: 100%;
+}
+
+.btn-exportar:active {
+    transform: translateY(-1px) scale(0.98);
+    box-shadow: 0 2px 10px rgba(16, 185, 129, 0.4);
+}
+
+.btn-exportar:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.3),
+        0 4px 15px rgba(16, 185, 129, 0.4);
+}
+
+/* Animación de pulso sutil */
+@keyframes pulse-subtle {
+
+    0%,
+    100% {
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+    }
+
+    50% {
+        box-shadow: 0 4px 25px rgba(16, 185, 129, 0.6);
+    }
+}
+
+.btn-exportar:not(:hover) {
+    animation: pulse-subtle 2s infinite;
+}
+
+/* Tablas Responsivas */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 1rem;
+    border: 1px solid var(--color-borde);
+    border-radius: 0.375rem;
+    box-shadow: var(--sombra);
+    background: white;
+}
+
+.table-responsive table {
+    min-width: 800px;
+    /* Forzar scroll en móviles */
+    width: 100%;
+    margin-bottom: 0;
+    box-shadow: none;
+    /* Quitar sombra de la tabla interna para no duplicar */
+}
+
+/* Ajuste para que la tabla interna no tenga bordes duplicados si los tiene */
+.table-responsive table {
+    border: none;
+    border-radius: 0;
+}
