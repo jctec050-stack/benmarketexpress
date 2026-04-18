@@ -390,7 +390,7 @@ export default function ResumenPage() {
                <div>
                  <p className="text-sm text-gray-500 font-bold uppercase">Total Ventas Tienda</p>
                  <p className="text-2xl font-bold text-gray-800">{formatCurrency(metrics.totalVentasTienda || 0)}</p>
-                 <p className="text-[10px] text-gray-400 mt-1 italic">(Efectivo IGNIS + Tarjetas + PedidosYa + Crédito)</p>
+                 <p className="text-[10px] text-gray-400 mt-1 italic">(Efectivo IGNIS + Tarjetas + PedidosYa + Crédito + Sobrante)</p>
                </div>
                <span className="text-3xl">🏬</span>
              </div>
