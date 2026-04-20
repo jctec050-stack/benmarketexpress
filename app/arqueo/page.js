@@ -702,23 +702,25 @@ export default function ArqueoPage() {
         </div>
 
         {/* --- FINAL SUMMARY --- */}
-        <div className={`w-full mt-8 bg-gray-900 text-white p-6 rounded-lg shadow-lg flex flex-col md:flex-row justify-between items-center gap-4 ${displayData.isSaved ? 'opacity-90' : ''}`}>
-           <div className="text-center md:text-left">
-              <div className="text-sm text-gray-400 uppercase tracking-wider">Total a Declarar en Sistema</div>
-              <div className="text-3xl font-bold text-yellow-400">{formatCurrency(totalADeclarar)}</div>
-              <div className="text-xs text-gray-500 mt-1">(Egresos + Efectivo Bruto)</div>
-           </div>
-           
-           <div className="h-px w-full md:w-px md:h-16 bg-gray-700"></div>
+        {totalIngresosTiendaCalculado !== 0 && (
+          <div className={`w-full mt-8 bg-gray-900 text-white p-6 rounded-lg shadow-lg flex flex-col md:flex-row justify-between items-center gap-4 ${displayData.isSaved ? 'opacity-90' : ''}`}>
+             <div className="text-center md:text-left">
+                <div className="text-sm text-gray-400 uppercase tracking-wider">Total a Declarar en Sistema</div>
+                <div className="text-3xl font-bold text-yellow-400">{formatCurrency(totalADeclarar)}</div>
+                <div className="text-xs text-gray-500 mt-1">(Egresos + Efectivo Bruto)</div>
+             </div>
+             
+             <div className="h-px w-full md:w-px md:h-16 bg-gray-700"></div>
 
-           <div className="text-center md:text-right">
-              <div className="text-sm text-gray-400 uppercase tracking-wider">Total Ingresos Tienda</div>
-              <div className={`text-3xl font-bold ${totalIngresosTiendaCalculado < 0 ? 'text-red-400' : 'text-green-400'}`}>
-                {formatCurrency(totalIngresosTiendaCalculado)}
-              </div>
-              <div className="text-xs text-gray-500 mt-1">(Total Declarar - Servicios Efectivo - Fondo)</div>
-           </div>
-        </div>
+             <div className="text-center md:text-right">
+                <div className="text-sm text-gray-400 uppercase tracking-wider">Total Ingresos Tienda</div>
+                <div className={`text-3xl font-bold ${totalIngresosTiendaCalculado < 0 ? 'text-red-400' : 'text-green-400'}`}>
+                  {formatCurrency(totalIngresosTiendaCalculado)}
+                </div>
+                <div className="text-xs text-gray-500 mt-1">(Total Declarar - Servicios Efectivo - Fondo)</div>
+             </div>
+          </div>
+        )}
 
         <div className="mt-8 w-full flex justify-end gap-3">
           <button 
