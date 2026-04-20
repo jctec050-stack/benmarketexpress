@@ -12,6 +12,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
+  useEffect(() => {
     // Check initial session
     const checkSession = async () => {
       try {

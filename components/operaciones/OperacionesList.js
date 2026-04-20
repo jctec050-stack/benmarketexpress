@@ -130,7 +130,6 @@ export default function OperacionesList({
                     </div>
                   </div>
                 </div>
-              </div>
             )
           })
         )}

@@ -330,8 +330,6 @@ export default function OperacionForm({ onSubmit, nextReceiptNumber, initialData
             {initialData ? 'Guardar Cambios' : 'Guardar Movimiento'}
           </button>
         </div>
-          </button>
-        </div>
       </form>
     </div>
   )
