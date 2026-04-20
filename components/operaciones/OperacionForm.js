@@ -20,10 +20,12 @@ export default function OperacionForm({ onSubmit, nextReceiptNumber, initialData
     referencia: '',
     numeroRecibo: ''
   })
+  const [motivoEdicion, setMotivoEdicion] = useState('')
 
   useEffect(() => {
     if (initialData) {
       setFormData({
+        id: initialData.id,
         fecha: initialData.fecha ? initialData.fecha.split('T')[0] : '',
         tipo: initialData.tipo || 'gasto',
         receptor: initialData.receptor || '',
@@ -33,6 +35,7 @@ export default function OperacionForm({ onSubmit, nextReceiptNumber, initialData
         referencia: initialData.referencia || '',
         numeroRecibo: initialData.numeroRecibo || ''
       })
+      setMotivoEdicion('')
     } else {
       // Reset to default
       setFormData({
@@ -49,6 +52,7 @@ export default function OperacionForm({ onSubmit, nextReceiptNumber, initialData
         referencia: '',
         numeroRecibo: ''
       })
+      setMotivoEdicion('')
     }
   }, [initialData])
 
@@ -82,6 +86,11 @@ export default function OperacionForm({ onSubmit, nextReceiptNumber, initialData
       return
     }
 
+    if (initialData?.id && !motivoEdicion.trim()) {
+      notifyError('Motivo Obligatorio', 'Debe indicar el motivo de la edición para continuar')
+      return
+    }
+
     const montoNum = parseCurrency(formData.monto)
     if (montoNum <= 0) {
       warning('Monto Inválido', 'El monto de la operación debe ser mayor a 0')
@@ -97,6 +106,7 @@ export default function OperacionForm({ onSubmit, nextReceiptNumber, initialData
     const fechaLocal = new Date(yyyy, (mm || 1) - 1, dd || 1, now.getHours(), now.getMinutes(), now.getSeconds())
 
     const operacion = {
+      ...(formData.id ? { id: formData.id } : {}),
       fecha: fechaLocal.toISOString(),
       tipo: formData.tipo,
       receptor: formData.receptor || null,
@@ -105,7 +115,8 @@ export default function OperacionForm({ onSubmit, nextReceiptNumber, initialData
       moneda: formData.moneda,
       referencia: formData.referencia || null,
       numeroRecibo: formData.tipo === 'operacion' ? formData.numeroRecibo : null,
-      arqueado: false
+      arqueado: false,
+      motivoEdicion: motivoEdicion
     }
 
     onSubmit(operacion)
@@ -120,6 +131,7 @@ export default function OperacionForm({ onSubmit, nextReceiptNumber, initialData
       referencia: '',
       numeroRecibo: prev.tipo === 'operacion' ? (parseInt(prev.numeroRecibo) || 0) + 1 : ''
     }))
+    setMotivoEdicion('')
   }
 
   return (
@@ -275,6 +287,26 @@ export default function OperacionForm({ onSubmit, nextReceiptNumber, initialData
           </div>
         </div>
 
+        {/* Motivo de Edición (Mandatory for existing records) */}
+        {initialData?.id && (
+          <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200 animate-pulse-subtle">
+            <label className="block text-sm font-bold text-yellow-800 mb-2">
+              Motivo de la Edición <span className="text-red-500">* (Obligatorio)</span>
+            </label>
+            <textarea
+              className="w-full px-3 py-2 border border-yellow-300 rounded-lg focus:ring-yellow-500 focus:border-yellow-500 text-sm"
+              rows="2"
+              placeholder="Ej: Ajuste de descripción / Corrección de categoría..."
+              value={motivoEdicion}
+              onChange={(e) => setMotivoEdicion(e.target.value)}
+              required
+            ></textarea>
+            <p className="text-[10px] text-yellow-700 mt-1 font-medium">
+              Este motivo quedará registrado en el historial de auditoría de la operación.
+            </p>
+          </div>
+        )}
+
         {/* Botones */}
         <div className="flex justify-end pt-4 border-t border-gray-100 gap-3">
           {initialData && (
@@ -288,9 +320,16 @@ export default function OperacionForm({ onSubmit, nextReceiptNumber, initialData
           )}
           <button
             type="submit"
-            className={`px-6 py-3 ${initialData ? 'bg-blue-600' : 'bg-gray-800'} text-white font-bold rounded-lg hover:opacity-90 shadow-md transition-transform transform hover:scale-105`}
+            disabled={initialData?.id && !motivoEdicion.trim()}
+            className={`px-6 py-3 font-bold rounded-lg shadow-md transition-all ${
+                initialData?.id && !motivoEdicion.trim() 
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                  : (initialData ? 'bg-blue-600 text-white' : 'bg-gray-800 text-white') + ' hover:opacity-90 transform hover:scale-105'
+            }`}
           >
             {initialData ? 'Guardar Cambios' : 'Guardar Movimiento'}
+          </button>
+        </div>
           </button>
         </div>
       </form>

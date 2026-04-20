@@ -127,6 +127,7 @@ export default function OperacionesList({
                         <Trash2 size={20} />
                       </button>
                     </div>
+                    </div>
                   </div>
                 </div>
               </div>

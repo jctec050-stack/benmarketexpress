@@ -12,14 +12,21 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
-  useEffect(() => {
-    // Check active session
+    // Check initial session
     const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (session) {
-        setUser(session.user)
-        fetchProfile(session.user.id)
-      } else {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session) {
+          setUser(session.user)
+          fetchProfile(session.user.id)
+        } else {
+          setLoading(false)
+          if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
+            router.push('/login')
+          }
+        }
+      } catch (error) {
+        console.error('Error in checkSession:', error)
         setLoading(false)
       }
     }
@@ -35,7 +42,9 @@ export const AuthProvider = ({ children }) => {
         setUser(null)
         setProfile(null)
         setLoading(false)
-        router.push('/login')
+        if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
+          router.push('/login')
+        }
       }
     })
 

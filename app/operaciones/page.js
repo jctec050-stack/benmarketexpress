@@ -28,7 +28,6 @@ export default function OperacionesPage() {
     setSelectedCajero
   } = useData()
   const router = useRouter()
-
   const [nextReceiptNumber, setNextReceiptNumber] = useState(null)
   const [editingOperacion, setEditingOperacion] = useState(null)
 
@@ -104,6 +103,7 @@ export default function OperacionesPage() {
 
     if (ok) {
       await deleteMovimiento(id)
+      setEditingOperacion(prev => (prev?.id === id ? null : prev))
       success('Eliminado', 'La operación ha sido borrada exitosamente.')
     }
   }
