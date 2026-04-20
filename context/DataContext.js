@@ -58,7 +58,7 @@ export const DataProvider = ({ children }) => {
     if (user) {
       refreshData()
     }
-  }, [user, selectedDate, selectedCaja, selectedCajero])
+  }, [user, selectedDate, selectedCaja, selectedCajero, profile])
 
   // Sync listener
   useEffect(() => {
