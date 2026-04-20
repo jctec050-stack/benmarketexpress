@@ -53,16 +53,17 @@ export default function Dashboard() {
     fetchFondo();
   }, [selectedCaja])
 
-  const handleFondoFijoChange = async (e) => {
+  const handleFondoFijoChange = (e) => {
     // Remove all non-numeric characters for parsing
     const rawValue = e.target.value.replace(/\D/g, '')
     const val = rawValue ? parseInt(rawValue, 10) : 0
-    
     setFondoFijo(val)
-    
+  }
+
+  const saveFondoFijo = async () => {
     // Save to Database (Replaces legacy localStorage)
     const currentCajero = profile?.username || user?.email || 'unknown';
-    await db.setFondoFijo(selectedCaja, val, currentCajero);
+    await db.setFondoFijo(selectedCaja, fondoFijo, currentCajero);
   }
 
   const handleAddMovimiento = async (movimiento) => {
@@ -169,6 +170,8 @@ export default function Dashboard() {
                   type="text"
                   value={fondoFijo === 0 ? '' : fondoFijo.toLocaleString('es-PY')}
                   onChange={handleFondoFijoChange}
+                  onBlur={saveFondoFijo}
+                  onKeyDown={(e) => e.key === 'Enter' && saveFondoFijo()}
                   placeholder="0"
                   className="block w-full border-none focus:ring-0 focus:outline-none text-sm font-bold p-0"
                 />
