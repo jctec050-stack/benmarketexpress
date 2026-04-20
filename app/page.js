@@ -61,7 +61,8 @@ export default function Dashboard() {
     setFondoFijo(val)
     
     // Save to Database (Replaces legacy localStorage)
-    await db.setFondoFijo(selectedCaja, val);
+    const currentCajero = profile?.username || user?.email || 'unknown';
+    await db.setFondoFijo(selectedCaja, val, currentCajero);
   }
 
   const handleAddMovimiento = async (movimiento) => {
