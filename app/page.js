@@ -194,6 +194,7 @@ export default function Dashboard() {
                movimientos={ingresos} 
                onDelete={handleDeleteMovimiento} 
                onEdit={handleEditMovimiento}
+               loading={loadingData}
                dateFilter={selectedDate}
                setDateFilter={setSelectedDate}
                cajaFilter={selectedCaja}

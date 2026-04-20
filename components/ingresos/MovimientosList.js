@@ -16,7 +16,7 @@ export default function MovimientosList({
   cajeroFilter,
   setCajeroFilter
 }) {
-  const { profile } = useAuth()
+  const { profile, user } = useAuth()
   const isCajero = profile?.rol === 'cajero'
 
   // Extract unique boxes from movements for the filter dropdown
@@ -33,10 +33,13 @@ export default function MovimientosList({
     
     // Safety check for cashiers: only their own movements
     if (isCajero && profile?.username) {
-      if (movCajero !== profile.username) return false
+      const isMyMov = movCajero === profile.username || 
+                      movCajero === user?.email || 
+                      mov.usuario_id === user?.id
+      if (!isMyMov) return false
     }
 
-    const matchCajero = (cajeroFilter && cajaFilter !== 'Todos los cajeros') ? movCajero === cajeroFilter : true
+    const matchCajero = (cajeroFilter && cajeroFilter !== 'Todos los cajeros') ? movCajero === cajeroFilter : true
     return matchDate && matchCaja && matchCajero
   })
 
