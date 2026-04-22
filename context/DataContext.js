@@ -76,7 +76,7 @@ export const DataProvider = ({ children }) => {
     setLoadingData(true)
     try {
       const isCajero = profile?.rol === 'cajero'
-      const cajaParam = isCajero ? selectedCaja : 'Todas las cajas'
+      const cajaParam = selectedCaja
 
       // Parallel fetching
       const [resIngresos, resEgresos, resArqueos, resMovimientos, resCot] = await Promise.all([
