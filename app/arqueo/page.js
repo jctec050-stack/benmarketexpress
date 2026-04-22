@@ -54,7 +54,7 @@ export default function ArqueoPage() {
 
   // Selection Logic for Arqueo
   useEffect(() => {
-    if (!arqueos) return
+    if (!arqueos || saving) return // Do not re-sync while saving to avoid race conditions
 
     const isAllCajas = selectedCaja === 'Todas las cajas'
     const isAllCajeros = selectedCajero === 'Todos los cajeros'
@@ -236,10 +236,10 @@ export default function ArqueoPage() {
     return {
       isSaved: true,
       efectivo: arqueoSeleccionado.efectivo || arqueoSeleccionado.efectivoDetalle || {},
-      monedasExtranjeras: arqueoSeleccionado.monedasExtranjeras || arqueoSeleccionado.monedasExtranjeras || legacyMonedas,
-      servicios: arqueoSeleccionado.servicios || { otros: {} },
-      totalEfectivoBruto: arqueoSeleccionado.total_efectivo || arqueoSeleccionado.totalEfectivo || 0,
-      totalEgresosMonto: arqueoSeleccionado.total_egresos || arqueoSeleccionado.totalEgresos || 0,
+      monedasExtranjeras: arqueoSeleccionado.monedasExtranjeras || legacyMonedas,
+      servicios: arqueoSeleccionado.servicios || {},
+      totalEfectivoBruto: arqueoSeleccionado.totalEfectivo || arqueoSeleccionado.total_efectivo || 0,
+      totalEgresosMonto: arqueoSeleccionado.totalEgresos || arqueoSeleccionado.total_egresos || 0,
       pagosTarjeta: arqueoSeleccionado.pagosTarjeta || arqueoSeleccionado.pagos_tarjeta || 0,
       ventasCredito: arqueoSeleccionado.ventasCredito || arqueoSeleccionado.ventas_credito || 0,
       pedidosYa: arqueoSeleccionado.pedidosYa || arqueoSeleccionado.pedidos_ya || 0,

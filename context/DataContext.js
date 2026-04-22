@@ -20,7 +20,7 @@ export const DataProvider = ({ children }) => {
     const tzOffsetMs = now.getTimezoneOffset() * 60000
     return new Date(now.getTime() - tzOffsetMs).toISOString().slice(0, 10)
   }
-  
+
   // Selected Date, Box (Caja) and Cashier (Cajero) for filtering
   const [selectedDate, setSelectedDate] = useState(getLocalISODate)
   const [selectedCaja, setSelectedCaja] = useState('Caja 1') // Default
@@ -32,7 +32,7 @@ export const DataProvider = ({ children }) => {
       if (storedCaja) {
         setSelectedCaja(storedCaja)
       }
-      
+
       const storedDate = sessionStorage.getItem('fechaJornada')
       if (storedDate) {
         setSelectedDate(storedDate)
@@ -68,7 +68,7 @@ export const DataProvider = ({ children }) => {
         if (synced > 0) refreshData()
       })
     }
-    
+
     window.addEventListener('online', handleOnline)
     return () => window.removeEventListener('online', handleOnline)
   }, [])
@@ -103,51 +103,52 @@ export const DataProvider = ({ children }) => {
   // CRUD Wrappers that update local state immediately (Optimistic UI could be added here)
   const addIngreso = async (item) => {
     const res = await db.saveMovimientoTemporal(item)
-    if (res.success) refreshData() // Or append to state directly
+    if (res.success) await refreshData() // Or append to state directly
     return res
   }
 
   const deleteIngreso = async (id) => {
     const res = await db.deleteMovimientoTemporal(id)
-    if (res.success) refreshData()
+    if (res.success) await refreshData()
     return res
   }
 
   const addEgreso = async (item) => {
     const res = await db.saveEgreso(item)
-    if (res.success) refreshData()
+    if (res.success) await refreshData()
     return res
   }
 
   const deleteEgreso = async (id) => {
     const res = await db.deleteEgreso(id)
-    if (res.success) refreshData()
+    if (res.success) await refreshData()
     return res
   }
-  
+
   const addArqueo = async (item) => {
-     const res = await db.saveArqueo(item, user?.id)
-     if (res.success) refreshData()
-     return res
+    const res = await db.saveArqueo(item, user?.id)
+    if (res.success) await refreshData()
+    return res
   }
 
   const updateArqueo = async (id, item) => {
-     const res = await db.updateArqueo(id, item)
-     if (res.success) refreshData()
-     return res
+    const res = await db.updateArqueo(id, item)
+    if (res.success) await refreshData()
+    return res
   }
 
   const addMovimiento = async (item) => {
     const res = await db.saveMovimiento(item)
-    if (res.success) refreshData()
+    if (res.success) await refreshData()
     return res
   }
 
   const deleteMovimiento = async (id) => {
     const res = await db.deleteMovimiento(id)
-    if (res.success) refreshData()
+    if (res.success) await refreshData()
     return res
   }
+
 
   const updateGlobalCotizaciones = async (newCot) => {
     const res = await db.saveCotizaciones(newCot)
