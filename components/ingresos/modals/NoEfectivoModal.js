@@ -60,7 +60,7 @@ export default function NoEfectivoModal({ isOpen, onClose, onSave, initialData =
               <input
                 type="text"
                 name="pagosTarjeta"
-                value={formatInputNumber(formData.pagosTarjeta)}
+                value={formData.pagosTarjeta === 0 ? '' : formatInputNumber(formData.pagosTarjeta)}
                 onChange={handleChange}
                 className="block w-full rounded-md border-gray-300 pl-10 focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2"
                 placeholder="0"
@@ -80,7 +80,7 @@ export default function NoEfectivoModal({ isOpen, onClose, onSave, initialData =
               <input
                 type="text"
                 name="pedidosYa"
-                value={formatInputNumber(formData.pedidosYa)}
+                value={formData.pedidosYa === 0 ? '' : formatInputNumber(formData.pedidosYa)}
                 onChange={handleChange}
                 className="block w-full rounded-md border-gray-300 pl-10 focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2"
                 placeholder="0"
@@ -100,7 +100,7 @@ export default function NoEfectivoModal({ isOpen, onClose, onSave, initialData =
               <input
                 type="text"
                 name="ventasTransferencia"
-                value={formatInputNumber(formData.ventasTransferencia)}
+                value={formData.ventasTransferencia === 0 ? '' : formatInputNumber(formData.ventasTransferencia)}
                 onChange={handleChange}
                 className="block w-full rounded-md border-gray-300 pl-10 focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2"
                 placeholder="0"

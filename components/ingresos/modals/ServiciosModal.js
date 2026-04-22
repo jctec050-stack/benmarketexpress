@@ -107,7 +107,7 @@ export default function ServiciosModal({ isOpen, onClose, onSave, type = 'tarjet
                         <input
                           type="text"
                           className="w-24 px-2 py-1 border border-gray-300 rounded text-right focus:ring-blue-500 focus:border-blue-500"
-                          value={formatInputNumber(services[name]?.monto)}
+                          value={services[name]?.monto === 0 ? '' : formatInputNumber(services[name]?.monto)}
                           onChange={(e) => handleAmountChange(name, 'monto', e.target.value)}
                           placeholder="0"
                         />
@@ -118,7 +118,7 @@ export default function ServiciosModal({ isOpen, onClose, onSave, type = 'tarjet
                         <input
                           type="text"
                           className="w-24 px-2 py-1 border border-gray-300 rounded text-right focus:ring-blue-500 focus:border-blue-500"
-                          value={formatInputNumber(services[name]?.tarjeta)}
+                          value={services[name]?.tarjeta === 0 ? '' : formatInputNumber(services[name]?.tarjeta)}
                           onChange={(e) => handleAmountChange(name, 'tarjeta', e.target.value)}
                           placeholder="0"
                         />

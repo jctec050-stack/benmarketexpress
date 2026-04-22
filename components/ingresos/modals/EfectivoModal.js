@@ -160,7 +160,7 @@ export default function EfectivoModal({ isOpen, onClose, onSave, initialData = {
                   <input
                     type="text"
                     className="w-24 px-2 py-1 border border-gray-300 rounded text-sm focus:ring-blue-500 focus:border-blue-500"
-                    value={formatInputNumber(monedas[key]?.cantidad, true)}
+                    value={monedas[key]?.cantidad === 0 ? '' : formatInputNumber(monedas[key]?.cantidad, true)}
                     onChange={(e) => handleMonedaChange(key, 'cantidad', e.target.value)}
                     placeholder={placeholder}
                     onFocus={(e) => e.target.select()}
