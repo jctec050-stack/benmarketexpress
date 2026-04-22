@@ -23,7 +23,8 @@ export const AuthProvider = ({ children }) => {
         } else {
           setLoading(false)
           if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
-            router.push('/login')
+            console.warn('No active session found. Redirecting to login...')
+            window.location.href = '/login'
           }
         }
       } catch (error) {
@@ -36,6 +37,8 @@ export const AuthProvider = ({ children }) => {
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log(`Supabase Auth Event: ${event}`)
+      
       if (session) {
         setUser(session.user)
         fetchProfile(session.user.id)
@@ -43,8 +46,11 @@ export const AuthProvider = ({ children }) => {
         setUser(null)
         setProfile(null)
         setLoading(false)
+        
+        // Force full reload on session loss to clear stale state and prevent 404s
         if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
-          router.push('/login')
+          console.warn('Session lost or expired. Forcing full reload to login...')
+          window.location.href = '/login?reason=session_expired'
         }
       }
     })
