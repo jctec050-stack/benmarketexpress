@@ -19,6 +19,7 @@ export default function ArqueoPage() {
     ingresos, // movimientosTemporales
     egresos, // egresosCaja
     movimientos, // Operaciones
+    arqueos,
     addArqueo,
     updateArqueo,
     loadingData,
@@ -33,7 +34,6 @@ export default function ArqueoPage() {
 
   const [fondoFijo, setFondoFijo] = useState(0)
   const [saving, setSaving] = useState(false)
-  const [arqueosGuardados, setArqueosGuardados] = useState([])
   const [arqueoSeleccionado, setArqueoSeleccionado] = useState(null)
   const [verArqueos, setVerArqueos] = useState(false)
 
@@ -52,44 +52,37 @@ export default function ArqueoPage() {
     setSelectedCajero(profile?.username || user.email)
   }, [isCajero, profile?.username, user])
 
-  // Fetch past Arqueos
+  // Selection Logic for Arqueo
   useEffect(() => {
-    const fetchArqueos = async () => {
-      // Fetch arqueos for the selected date
-      const res = await db.getArqueos(selectedDate, null) // Get all for the date to allow client-side filtering / consolidation
-      if (res.success) {
-        setArqueosGuardados(res.data)
+    if (!arqueos) return
 
-        const isAllCajas = selectedCaja === 'Todas las cajas'
-        const isAllCajeros = selectedCajero === 'Todos los cajeros'
+    const isAllCajas = selectedCaja === 'Todas las cajas'
+    const isAllCajeros = selectedCajero === 'Todos los cajeros'
 
-        if (isAllCajas || isAllCajeros) {
-          // Filtering logic
-          const matches = res.data.filter(a => {
-            const matchCaja = isAllCajas || a.caja === selectedCaja
-            const matchCajero = isAllCajeros || (a.cajero === selectedCajero)
-            return matchCaja && matchCajero
-          })
+    if (isAllCajas || isAllCajeros) {
+      // Filtering logic
+      const matches = arqueos.filter(a => {
+        const matchCaja = isAllCajas || a.caja === selectedCaja
+        const matchCajero = isAllCajeros || (a.cajero === selectedCajero)
+        return matchCaja && matchCajero
+      })
 
-          if (matches.length > 1) {
-            setArqueoSeleccionado(consolidateArqueos(matches))
-          } else if (matches.length === 1) {
-            setArqueoSeleccionado(matches[0])
-          } else {
-            setArqueoSeleccionado(null)
-          }
-        } else {
-          // Specific Box + Specific Cashier
-          const match = res.data.find(a =>
-            a.caja === selectedCaja &&
-            (a.cajero === selectedCajero || (isCajero && (a.cajero === user?.email || a.cajero === profile?.username)))
-          )
-          setArqueoSeleccionado(match || null)
-        }
+      if (matches.length > 1) {
+        setArqueoSeleccionado(consolidateArqueos(matches))
+      } else if (matches.length === 1) {
+        setArqueoSeleccionado(matches[0])
+      } else {
+        setArqueoSeleccionado(null)
       }
+    } else {
+      // Specific Box + Specific Cashier
+      const match = arqueos.find(a =>
+        a.caja === selectedCaja &&
+        (a.cajero === selectedCajero || (isCajero && (a.cajero === user?.email || a.cajero === profile?.username)))
+      )
+      setArqueoSeleccionado(match || null)
     }
-    fetchArqueos()
-  }, [selectedDate, selectedCaja, selectedCajero, isCajero, user, profile?.username])
+  }, [arqueos, selectedDate, selectedCaja, selectedCajero, isCajero, user, profile?.username])
 
   // Load Fondo Fijo from DB (Replaces legacy localStorage)
   useEffect(() => {
