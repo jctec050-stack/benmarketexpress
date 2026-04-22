@@ -10,7 +10,7 @@ import { Box } from 'lucide-react'
 export default function EgresoForm({ onSubmit, initialData = null, onCancelEdit }) {
   const { selectedCaja, selectedDate } = useData()
   const { error: notifyError } = useNotifications()
-  
+
   const initialFormState = {
     fecha: selectedDate,
     categoria: '',
@@ -86,19 +86,15 @@ export default function EgresoForm({ onSubmit, initialData = null, onCancelEdit 
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    
+
     if (!formData.fecha || !formData.categoria || !formData.descripcion || !formData.monto) {
       notifyError('Campos Incompletos', 'Por favor complete todos los campos obligatorios')
       return
     }
 
-    const [yyyy, mm, dd] = String(selectedDate).split('-').map(v => parseInt(v, 10))
-    const now = new Date()
-    const fechaLocal = new Date(yyyy, (mm || 1) - 1, dd || 1, now.getHours(), now.getMinutes(), now.getSeconds())
-
     const egreso = {
       ...(formData.id ? { id: formData.id } : {}),
-      fecha: fechaLocal.toISOString(),
+      fecha: formData.fecha || selectedDate,
       categoria: formData.categoria,
       descripcion: formData.descripcion,
       monto: formData.monto,
@@ -115,7 +111,7 @@ export default function EgresoForm({ onSubmit, initialData = null, onCancelEdit 
 
   return (
     <div className="relative bg-white rounded-lg shadow-md p-8 pt-12 mb-8 border border-gray-100 max-w-5xl mx-auto">
-      
+
       {/* Badge Caja (Top Right) */}
       <div className="absolute top-4 right-4 bg-[#c62828] text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 shadow-sm">
         <Box size={18} />
@@ -123,7 +119,7 @@ export default function EgresoForm({ onSubmit, initialData = null, onCancelEdit 
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        
+
         {/* Categoría */}
         <div className="form-group grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
           <div>
@@ -239,11 +235,10 @@ export default function EgresoForm({ onSubmit, initialData = null, onCancelEdit 
           <button
             type="submit"
             disabled={initialData?.id && !motivoEdicion.trim()}
-            className={`px-8 py-3 font-bold rounded-lg transition-all shadow-sm ${
-                initialData?.id && !motivoEdicion.trim() 
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
-                  : 'bg-[#c62828] text-white hover:bg-red-800'
-            }`}
+            className={`px-8 py-3 font-bold rounded-lg transition-all shadow-sm ${initialData?.id && !motivoEdicion.trim()
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : 'bg-[#c62828] text-white hover:bg-red-800'
+              }`}
           >
             {initialData?.id ? 'Guardar Cambios' : 'Guardar Egreso'}
           </button>

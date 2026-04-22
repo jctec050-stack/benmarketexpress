@@ -15,11 +15,11 @@ export default function OperacionesPage() {
   const { user, profile, loading: authLoading } = useAuth()
   const { success, error: notifyError, confirm } = useNotifications()
   const isCajero = profile?.rol === 'cajero'
-  const { 
+  const {
     movimientos, // These are 'Operaciones' in legacy terms
-    addMovimiento, 
-    deleteMovimiento, 
-    loadingData, 
+    addMovimiento,
+    deleteMovimiento,
+    loadingData,
     selectedDate,
     setSelectedDate,
     selectedCaja,
@@ -49,23 +49,30 @@ export default function OperacionesPage() {
   }, [user])
 
   const handleAddOperacion = async (operacion) => {
+    // Combine date from form + current time
+    const now = new Date()
+    const timeString = now.toTimeString().split(' ')[0] // HH:MM:SS
+    const baseDate = operacion.fecha ? String(operacion.fecha).split('T')[0] : selectedDate
+    const datetimeString = `${baseDate}T${timeString}`
+
     // Add metadata
     const newOperacion = {
       ...operacion,
+      fecha: datetimeString,
       caja: selectedCaja,
       cajero: profile?.username || user?.email || 'unknown',
       usuarioId: user?.id,
       ...(editingOperacion?.id ? { id: editingOperacion.id } : {})
     }
-    
+
     const res = await addMovimiento(newOperacion)
-    
+
     if (res.success) {
       success(
-        editingOperacion ? 'Operación Actualizada' : 'Operación Guardada', 
+        editingOperacion ? 'Operación Actualizada' : 'Operación Guardada',
         editingOperacion ? 'El registro fue modificado con éxito.' : 'El movimiento se registró con éxito.'
       )
-      
+
       // Auto-generate receipt if it's bank operation (only on new)
       if (newOperacion.tipo === 'operacion' && !editingOperacion) {
         try {
@@ -119,10 +126,10 @@ export default function OperacionesPage() {
         <div className="w-full flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-              Operaciones y Gastos - 
+              Operaciones y Gastos -
               {!isCajero ? (
-                <select 
-                  value={selectedCaja} 
+                <select
+                  value={selectedCaja}
                   onChange={(e) => setSelectedCaja(e.target.value)}
                   className="bg-transparent border-b-2 border-gray-300 focus:outline-none focus:border-red-500 text-gray-800 cursor-pointer"
                 >
@@ -144,12 +151,12 @@ export default function OperacionesPage() {
 
         {/* Main Content Grid */}
         <div className="w-full grid grid-cols-1 gap-8">
-          
+
           {/* Top Section: Form */}
           <div className="space-y-8">
-            <OperacionForm 
-              onSubmit={handleAddOperacion} 
-              nextReceiptNumber={nextReceiptNumber} 
+            <OperacionForm
+              onSubmit={handleAddOperacion}
+              nextReceiptNumber={nextReceiptNumber}
               initialData={editingOperacion}
               onCancelEdit={() => setEditingOperacion(null)}
             />
@@ -157,17 +164,17 @@ export default function OperacionesPage() {
 
           {/* Bottom Section: History */}
           <div className="space-y-8">
-             <OperacionesList 
-               operaciones={movimientos} 
-               onDelete={handleDeleteOperacion} 
-               onEdit={handleEditClick}
-               dateFilter={selectedDate}
-               setDateFilter={setSelectedDate}
-               cajaFilter={selectedCaja}
-               setCajaFilter={setSelectedCaja}
-               cajeroFilter={selectedCajero}
-               setCajeroFilter={setSelectedCajero}
-             />
+            <OperacionesList
+              operaciones={movimientos}
+              onDelete={handleDeleteOperacion}
+              onEdit={handleEditClick}
+              dateFilter={selectedDate}
+              setDateFilter={setSelectedDate}
+              cajaFilter={selectedCaja}
+              setCajaFilter={setSelectedCaja}
+              cajeroFilter={selectedCajero}
+              setCajeroFilter={setSelectedCajero}
+            />
           </div>
 
         </div>

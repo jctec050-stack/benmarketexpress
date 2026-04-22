@@ -79,7 +79,7 @@ export default function OperacionForm({ onSubmit, nextReceiptNumber, initialData
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    
+
     // Validation
     if (!formData.fecha || !formData.tipo || !formData.descripcion || !formData.monto || !formData.moneda) {
       notifyError('Campos Incompletos', 'Por favor complete todos los campos obligatorios')
@@ -101,13 +101,9 @@ export default function OperacionForm({ onSubmit, nextReceiptNumber, initialData
     const isPositive = formData.tipo === 'deposito-inversiones' || formData.tipo === 'inversion-retiro'
     const finalMonto = isPositive ? Math.abs(montoNum) : -Math.abs(montoNum)
 
-    const [yyyy, mm, dd] = String(formData.fecha).split('-').map(v => parseInt(v, 10))
-    const now = new Date()
-    const fechaLocal = new Date(yyyy, (mm || 1) - 1, dd || 1, now.getHours(), now.getMinutes(), now.getSeconds())
-
     const operacion = {
       ...(formData.id ? { id: formData.id } : {}),
-      fecha: fechaLocal.toISOString(),
+      fecha: formData.fecha,
       tipo: formData.tipo,
       receptor: formData.receptor || null,
       descripcion: (formData.tipo === 'inversion-retiro' && !formData.descripcion.trim()) ? 'Inversion-Retiro de fondos' : formData.descripcion,
@@ -141,7 +137,7 @@ export default function OperacionForm({ onSubmit, nextReceiptNumber, initialData
       </h3>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        
+
         {/* Fecha */}
         <div>
           <label className="block text-sm font-bold text-gray-700 mb-1">
@@ -321,11 +317,10 @@ export default function OperacionForm({ onSubmit, nextReceiptNumber, initialData
           <button
             type="submit"
             disabled={initialData?.id && !motivoEdicion.trim()}
-            className={`px-6 py-3 font-bold rounded-lg shadow-md transition-all ${
-                initialData?.id && !motivoEdicion.trim() 
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
-                  : (initialData ? 'bg-blue-600 text-white' : 'bg-gray-800 text-white') + ' hover:opacity-90 transform hover:scale-105'
-            }`}
+            className={`px-6 py-3 font-bold rounded-lg shadow-md transition-all ${initialData?.id && !motivoEdicion.trim()
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : (initialData ? 'bg-blue-600 text-white' : 'bg-gray-800 text-white') + ' hover:opacity-90 transform hover:scale-105'
+              }`}
           >
             {initialData ? 'Guardar Cambios' : 'Guardar Movimiento'}
           </button>
