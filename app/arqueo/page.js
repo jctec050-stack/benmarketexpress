@@ -22,6 +22,7 @@ export default function ArqueoPage() {
     arqueos,
     addArqueo,
     updateArqueo,
+    deleteArqueo,
     loadingData,
     selectedDate,
     setSelectedDate,
@@ -441,6 +442,35 @@ export default function ArqueoPage() {
     }
   }
 
+  const handleDeleteArqueo = async () => {
+    if (!arqueoSeleccionado?.id) return
+
+    const ok = await confirm({
+      title: 'Eliminar Arqueo',
+      message: '¿Está seguro de eliminar este arqueo? Los movimientos volverán a estar disponibles para edición.',
+      confirmText: 'Eliminar Arqueo',
+      type: 'danger'
+    })
+
+    if (!ok) return
+
+    setSaving(true)
+    try {
+      const res = await deleteArqueo(arqueoSeleccionado.id, arqueoSeleccionado.fecha, arqueoSeleccionado.caja)
+      if (res.success) {
+        success('Arqueo Eliminado', 'El arqueo se ha eliminado y los movimientos han sido liberados.')
+        setArqueoSeleccionado(null)
+      } else {
+        notifyError('Error al Eliminar', res.error || 'No se pudo eliminar el arqueo.')
+      }
+    } catch (e) {
+      console.error(e)
+      notifyError('Error Inesperado', 'Ocurrió un error al intentar eliminar el arqueo.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
   const handleExportPDF = () => {
     const arqueoData = {
       fecha: arqueoSeleccionado ? arqueoSeleccionado.fecha : selectedDate,
@@ -728,6 +758,15 @@ export default function ArqueoPage() {
         )}
 
         <div className="mt-8 w-full flex justify-end gap-3">
+          {displayData.isSaved && !arqueoSeleccionado?.isConsolidated && (
+            <button
+              onClick={handleDeleteArqueo}
+              disabled={saving}
+              className="px-4 py-3 border-2 border-red-200 text-red-600 hover:bg-red-50 font-bold rounded-xl transition-colors disabled:opacity-50"
+            >
+              Eliminar Arqueo
+            </button>
+          )}
           <button
             onClick={handleExportPDF}
             className="px-4 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow"

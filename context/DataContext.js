@@ -137,6 +137,12 @@ export const DataProvider = ({ children }) => {
     return res
   }
 
+  const deleteArqueo = async (id, fecha, caja) => {
+    const res = await db.deleteArqueo(id, fecha, caja)
+    if (res.success) await refreshData()
+    return res
+  }
+
   const addMovimiento = async (item) => {
     const res = await db.saveMovimiento(item)
     if (res.success) await refreshData()
@@ -179,6 +185,7 @@ export const DataProvider = ({ children }) => {
       deleteEgreso,
       addArqueo,
       updateArqueo,
+      deleteArqueo,
       addMovimiento,
       deleteMovimiento,
       updateGlobalCotizaciones
