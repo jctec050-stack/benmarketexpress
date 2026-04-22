@@ -31,9 +31,13 @@ export default function MovimientosList({
     const matchCaja = cajaFilter && cajaFilter !== 'Todas las cajas' ? mov.caja === cajaFilter : true
     const movCajero = mov.cajero || mov.usuario
     
-    // Safety check for cashiers: only their own movements
-    if (isCajero && profile?.username) {
-      const isMyMov = movCajero === profile.username || 
+    // Safety check for cashiers: only their assigned box and their own movements
+    if (isCajero) {
+      // Must match assigned box
+      if (cajaFilter && mov.caja !== cajaFilter) return false
+      
+      // Must be their own movement
+      const isMyMov = movCajero === profile?.username || 
                       movCajero === user?.email || 
                       mov.usuario_id === user?.id
       if (!isMyMov) return false
@@ -56,16 +60,22 @@ export default function MovimientosList({
               onChange={(e) => setDateFilter && setDateFilter(e.target.value)}
               className="px-3 py-1.5 border border-gray-300 rounded-md text-sm text-gray-700 focus:ring-blue-500 focus:border-blue-500"
             />
-              <select 
-              value={cajaFilter || 'Todas las cajas'} 
-              onChange={(e) => setCajaFilter && setCajaFilter(e.target.value)}
-              className="px-3 py-1.5 border border-gray-300 rounded-md text-sm text-gray-700 bg-white"
-            >
-              <option value="Todas las cajas">Todas las cajas</option>
-              {availableCajas.sort().map(c => (
-                <option key={c} value={c}>{c}</option>
-              ))}
-            </select>
+              {!isCajero ? (
+                <select 
+                  value={cajaFilter || 'Todas las cajas'} 
+                  onChange={(e) => setCajaFilter && setCajaFilter(e.target.value)}
+                  className="px-3 py-1.5 border border-gray-300 rounded-md text-sm text-gray-700 bg-white"
+                >
+                  <option value="Todas las cajas">Todas las cajas</option>
+                  {availableCajas.sort().map(c => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              ) : (
+                <div className="px-3 py-1.5 bg-blue-50 border border-blue-200 rounded-md text-sm font-bold text-blue-700 flex items-center gap-1">
+                  <span>🏪</span> {cajaFilter}
+                </div>
+              )}
 
             {/* Cajero Filter (Only for Admin/Super) */}
             {!isCajero && (

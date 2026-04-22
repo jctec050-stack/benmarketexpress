@@ -27,9 +27,10 @@ export default function EgresosList({
     const matchDate = dateFilter ? egDate === dateFilter : true
     const matchCaja = cajaFilter && cajaFilter !== 'Todas las cajas' ? eg.caja === cajaFilter : true
     
-    // Safety check for cashiers: only their own egresos
-    if (isCajero && profile?.username) {
-      if (eg.cajero !== profile.username) return false
+    // Safety check for cashiers: only their assigned box and their own egresos
+    if (isCajero) {
+      if (cajaFilter && eg.caja !== cajaFilter) return false
+      if (profile?.username && eg.cajero !== profile.username) return false
     }
 
     const matchCajero = cajeroFilter && cajeroFilter !== 'Todos los cajeros' ? eg.cajero === cajeroFilter : true
@@ -53,16 +54,22 @@ export default function EgresosList({
               onChange={(e) => setDateFilter && setDateFilter(e.target.value)}
               className="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 outline-none focus:border-red-500 transition-all"
             />
-            <select 
-              value={cajaFilter || 'Todas las cajas'} 
-              onChange={(e) => setCajaFilter && setCajaFilter(e.target.value)}
-              className="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 outline-none cursor-pointer"
-            >
-              <option value="Todas las cajas">Todas las cajas</option>
-              {availableCajas.sort().map(c => (
-                <option key={c} value={c}>{c}</option>
-              ))}
-            </select>
+            {!isCajero ? (
+              <select 
+                value={cajaFilter || 'Todas las cajas'} 
+                onChange={(e) => setCajaFilter && setCajaFilter(e.target.value)}
+                className="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 outline-none cursor-pointer"
+              >
+                <option value="Todas las cajas">Todas las cajas</option>
+                {availableCajas.sort().map(c => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+            ) : (
+              <div className="px-3 py-1.5 bg-red-50 border border-red-200 rounded-lg text-sm font-bold text-red-700 flex items-center gap-1">
+                <span>🏪</span> {cajaFilter}
+              </div>
+            )}
             {!isCajero && (
               <select 
                 value={cajeroFilter || 'Todos los cajeros'} 

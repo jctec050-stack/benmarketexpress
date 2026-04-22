@@ -2,6 +2,7 @@
 
 import { formatCurrency } from '@/lib/utils'
 import { Trash2, Pencil } from 'lucide-react'
+import { useAuth } from '@/context/AuthContext'
 
 export default function OperacionesList({ 
   operaciones, 
@@ -14,6 +15,8 @@ export default function OperacionesList({
   cajeroFilter,
   setCajeroFilter
 }) {
+  const { profile, user } = useAuth()
+  const isCajero = profile?.rol === 'cajero'
   // Extract unique boxes
   const availableCajas = Array.from(new Set(operaciones.map(m => m.caja))).filter(Boolean)
   // Extract unique cashiers
@@ -24,7 +27,18 @@ export default function OperacionesList({
     const opDate = op.fecha ? op.fecha.split('T')[0] : ''
     const matchDate = dateFilter ? opDate === dateFilter : true
     const matchCaja = cajaFilter && cajaFilter !== 'Todas las cajas' ? op.caja === cajaFilter : true
-    const matchCajero = cajeroFilter && cajaFilter !== 'Todos los cajeros' ? op.cajero === cajeroFilter : true
+    const matchCajero = cajeroFilter && cajeroFilter !== 'Todos los cajeros' ? op.cajero === cajeroFilter : true
+    
+    // Safety check for cashiers: only their assigned box and their own operations
+    if (isCajero) {
+      if (cajaFilter && op.caja !== cajaFilter) return false
+      const opCajero = op.cajero || op.usuario
+      const isMyMov = opCajero === profile?.username || 
+                      opCajero === user?.email || 
+                      op.usuario_id === user?.id
+      if (!isMyMov) return false
+    }
+
     return matchDate && matchCaja && matchCajero
   })
 
@@ -41,26 +55,34 @@ export default function OperacionesList({
             onChange={(e) => setDateFilter && setDateFilter(e.target.value)}
             className="px-3 py-1.5 border border-gray-300 rounded-md text-sm text-gray-700 focus:ring-blue-500 focus:border-blue-500"
           />
-          <select 
-            value={cajaFilter || 'Todas las cajas'} 
-            onChange={(e) => setCajaFilter && setCajaFilter(e.target.value)}
-            className="px-3 py-1.5 border border-gray-300 rounded-md text-sm text-gray-700 bg-white"
-          >
-            <option value="Todas las cajas">Todas las cajas</option>
-            {availableCajas.sort().map(c => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </select>
-          <select 
-            value={cajeroFilter || 'Todos los cajeros'} 
-            onChange={(e) => setCajeroFilter && setCajeroFilter(e.target.value)}
-            className="px-3 py-1.5 border border-gray-300 rounded-md text-sm text-gray-700 bg-white"
-          >
-            <option value="Todos los cajeros">Todos los cajeros</option>
-            {availableCajeros.sort().map(c => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </select>
+          {!isCajero ? (
+            <>
+              <select 
+                value={cajaFilter || 'Todas las cajas'} 
+                onChange={(e) => setCajaFilter && setCajaFilter(e.target.value)}
+                className="px-3 py-1.5 border border-gray-300 rounded-md text-sm text-gray-700 bg-white"
+              >
+                <option value="Todas las cajas">Todas las cajas</option>
+                {availableCajas.sort().map(c => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+              <select 
+                value={cajeroFilter || 'Todos los cajeros'} 
+                onChange={(e) => setCajeroFilter && setCajeroFilter(e.target.value)}
+                className="px-3 py-1.5 border border-gray-300 rounded-md text-sm text-gray-700 bg-white"
+              >
+                <option value="Todos los cajeros">Todos los cajeros</option>
+                {availableCajeros.sort().map(c => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+            </>
+          ) : (
+            <div className="px-3 py-1.5 bg-blue-50 border border-blue-200 rounded-md text-sm font-bold text-blue-700 flex items-center gap-1">
+              <span>🏪</span> {cajaFilter}
+            </div>
+          )}
         </div>
       </div>
 
