@@ -96,6 +96,11 @@ export default function EgresosList({
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <span className="font-bold text-gray-800 text-md">{egreso.descripcion}</span>
+                  {egreso.categoria === 'Pago a Proveedor' && egreso.receptor && (
+                    <span className="bg-blue-50 text-blue-700 text-[10px] px-2 py-0.5 rounded font-bold border border-blue-100">
+                      PROVEEDOR: {egreso.receptor}
+                    </span>
+                  )}
                   {egreso.numeroRecibo && (
                     <span className="bg-red-50 text-red-700 text-[10px] px-2 py-0.5 rounded font-bold">
                       #{egreso.numeroRecibo}
