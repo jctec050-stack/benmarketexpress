@@ -38,6 +38,7 @@ export default function ResumenPage() {
   const [egresosFilters, setEgresosFilters] = useState({
     cajero: '',
     categoria: '',
+    receptor: '',
     descripcion: '',
     montoMin: ''
   })
@@ -273,9 +274,10 @@ export default function ResumenPage() {
     const f = egresosFilters
     const matchCajero = !f.cajero || (e.cajero || '').toLowerCase().includes(f.cajero.toLowerCase())
     const matchCategoria = !f.categoria || (e.categoria || '').toLowerCase().includes(f.categoria.toLowerCase())
+    const matchReceptor = !f.receptor || (e.receptor || '').toLowerCase().includes(f.receptor.toLowerCase())
     const matchDescripcion = !f.descripcion || (e.descripcion || '').toLowerCase().includes(f.descripcion.toLowerCase())
     const matchMonto = !f.montoMin || (e.monto || 0) >= parseFloat(f.montoMin)
-    return matchCajero && matchCategoria && matchDescripcion && matchMonto
+    return matchCajero && matchCategoria && matchReceptor && matchDescripcion && matchMonto
   })
 
   const handleFilterChange = (name, value) => {
@@ -370,7 +372,7 @@ export default function ResumenPage() {
           <div className="flex-grow"></div>
           
           <button 
-            onClick={() => exportResumenExcel(tableData, metrics, { start: startDate, end: endDate })}
+            onClick={() => exportResumenExcel(tableData, metrics, { start: startDate, end: endDate }, filteredEgresosList)}
             className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center gap-2 transform active:scale-95 transition-all shadow-sm"
           >
             📊 Excel
@@ -545,6 +547,7 @@ export default function ResumenPage() {
                   <th className="px-6 py-3">Fecha</th>
                   <th className="px-6 py-3">Cajero</th>
                   <th className="px-6 py-3">Categoría</th>
+                  <th className="px-6 py-3">Proveedor/Receptor</th>
                   <th className="px-6 py-3">Descripción</th>
                   <th className="px-6 py-3 text-right">Monto</th>
                 </tr>
@@ -576,6 +579,15 @@ export default function ResumenPage() {
                       type="text" 
                       placeholder="Filtrar..."
                       className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:border-blue-500 outline-none"
+                      value={egresosFilters.receptor}
+                      onChange={(e) => handleFilterChange('receptor', e.target.value)}
+                    />
+                  </td>
+                  <td className="px-6 py-2">
+                    <input 
+                      type="text" 
+                      placeholder="Filtrar..."
+                      className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:border-blue-500 outline-none"
                       value={egresosFilters.descripcion}
                       onChange={(e) => handleFilterChange('descripcion', e.target.value)}
                     />
@@ -598,6 +610,7 @@ export default function ResumenPage() {
                         <td className="px-6 py-4">{new Date(e.fecha).toLocaleDateString()}</td>
                         <td className="px-6 py-4">{e.cajero || 'N/A'}</td>
                         <td className="px-6 py-4">{e.categoria}</td>
+                        <td className="px-6 py-4 font-medium text-gray-700">{e.receptor || '---'}</td>
                         <td className="px-6 py-4">{e.descripcion}</td>
                         <td className="px-6 py-4 text-right text-red-600 font-medium">
                           {formatCurrency(e.monto)}
@@ -605,14 +618,14 @@ export default function ResumenPage() {
                       </tr>
                     ))}
                     <tr className="bg-gray-100 font-bold border-t-2 border-gray-300">
-                      <td colSpan="4" className="px-6 py-4 uppercase">Total Egresos:</td>
+                      <td colSpan="5" className="px-6 py-4 uppercase">Total Egresos:</td>
                       <td className="px-6 py-4 text-right text-red-600">
                         {formatCurrency(filteredEgresosList.reduce((acc, e) => acc + (e.monto || 0), 0))}
                       </td>
                     </tr>
                   </>
                 ) : (
-                  <tr><td colSpan="5" className="text-center py-8 text-gray-500">No hay egresos que coincidan</td></tr>
+                  <tr><td colSpan="6" className="text-center py-8 text-gray-500">No hay egresos que coincidan</td></tr>
                 )}
               </tbody>
             </table>
