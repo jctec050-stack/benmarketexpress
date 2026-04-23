@@ -715,7 +715,15 @@ export default function ArqueoPage() {
                 <tbody>
                   {displayData.egresosList.length > 0 ? displayData.egresosList.map((e, i) => (
                     <tr key={i} className="border-b border-gray-100">
-                      <td className="py-1">{e.descripcion || e.categoria}</td>
+                      <td className="py-1">
+                        {e.descripcion || e.categoria}
+                        {e.categoria === 'Pago a Proveedor' && e.receptor && (
+                          <span className="text-blue-600 ml-1 font-bold">({e.receptor})</span>
+                        )}
+                        {e.categoria === 'Retiro de Fondos' && e.receptor && (
+                          <span className="text-purple-600 ml-1 font-bold">({e.receptor})</span>
+                        )}
+                      </td>
                       <td className="py-1 text-right font-medium text-red-600">
                         {formatCurrency(e.monto)}
                       </td>
