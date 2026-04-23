@@ -681,7 +681,14 @@ export default function ArqueoPage() {
                   if (!s || (s.monto === 0 && s.tarjeta === 0)) return null
                   return (
                     <tr key={key} className="border-b border-gray-100">
-                      <td className="py-1 font-medium">{getServicioLabel(key)}</td>
+                      <td className="py-1 font-medium">
+                        {getServicioLabel(key)}
+                        {s.lotes && s.lotes.length > 0 && (
+                          <div className="text-[10px] text-gray-400 font-normal">
+                            Lote: {Array.from(new Set(s.lotes)).join(', ')}
+                          </div>
+                        )}
+                      </td>
                       <td className="py-1 text-right">{formatCurrency(s.monto)}</td>
                       <td className="py-1 text-right">{formatCurrency(s.tarjeta)}</td>
                     </tr>
@@ -689,7 +696,14 @@ export default function ArqueoPage() {
                 })}
                 {displayData.servicios.otros && Object.entries(displayData.servicios.otros).map(([name, s]) => (
                   <tr key={name} className="border-b border-gray-100">
-                    <td className="py-1 font-medium">{getServicioLabel(name)}</td>
+                    <td className="py-1 font-medium">
+                      {getServicioLabel(name)}
+                      {s.lotes && s.lotes.length > 0 && (
+                        <div className="text-[10px] text-gray-400 font-normal">
+                          Lote: {Array.from(new Set(s.lotes)).join(', ')}
+                        </div>
+                      )}
+                    </td>
                     <td className="py-1 text-right">{formatCurrency(s.monto)}</td>
                     <td className="py-1 text-right">{formatCurrency(s.tarjeta)}</td>
                   </tr>
