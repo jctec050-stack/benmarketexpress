@@ -63,10 +63,11 @@ export default function OperacionForm({ onSubmit, nextReceiptNumber, initialData
   }, [nextReceiptNumber, formData.tipo, initialData])
 
   const handleChange = (e) => {
-    const { name, value } = e.target
+    const { name, value, type } = e.target
+    const finalValue = (type === 'text' || type === 'textarea') ? value.toUpperCase() : value
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: finalValue
     }))
   }
 
@@ -190,7 +191,7 @@ export default function OperacionForm({ onSubmit, nextReceiptNumber, initialData
               <input
                 type="text"
                 name="receptor"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-gray-500 focus:border-gray-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-gray-500 focus:border-gray-500 uppercase"
                 placeholder="Nombre de quien recibe"
                 value={formData.receptor}
                 onChange={handleChange}
@@ -224,7 +225,7 @@ export default function OperacionForm({ onSubmit, nextReceiptNumber, initialData
             type="text"
             name="descripcion"
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-gray-500 focus:border-gray-500"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-gray-500 focus:border-gray-500 uppercase"
             placeholder="Descripción detallada"
             value={formData.descripcion}
             onChange={handleChange}
@@ -275,7 +276,7 @@ export default function OperacionForm({ onSubmit, nextReceiptNumber, initialData
             <input
               type="text"
               name="referencia"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-gray-500 focus:border-gray-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-gray-500 focus:border-gray-500 uppercase"
               placeholder="Factura, etc."
               value={formData.referencia}
               onChange={handleChange}
@@ -290,11 +291,11 @@ export default function OperacionForm({ onSubmit, nextReceiptNumber, initialData
               Motivo de la Edición <span className="text-red-500">* (Obligatorio)</span>
             </label>
             <textarea
-              className="w-full px-3 py-2 border border-yellow-300 rounded-lg focus:ring-yellow-500 focus:border-yellow-500 text-sm"
+              className="w-full px-3 py-2 border border-yellow-300 rounded-lg focus:ring-yellow-500 focus:border-yellow-500 text-sm uppercase"
               rows="2"
               placeholder="Ej: Ajuste de descripción / Corrección de categoría..."
               value={motivoEdicion}
-              onChange={(e) => setMotivoEdicion(e.target.value)}
+              onChange={(e) => setMotivoEdicion(e.target.value.toUpperCase())}
               required
             ></textarea>
             <p className="text-[10px] text-yellow-700 mt-1 font-medium">

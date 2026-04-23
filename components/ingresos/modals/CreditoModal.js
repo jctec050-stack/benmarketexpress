@@ -31,7 +31,7 @@ export default function CreditoModal({ isOpen, onClose, onSave, initialData = {}
       const numericValue = parseCurrency(value)
       setFormData(prev => ({ ...prev, [name]: numericValue }))
     } else {
-      setFormData(prev => ({ ...prev, [name]: value }))
+      setFormData(prev => ({ ...prev, [name]: value.toUpperCase() }))
     }
   }
 
@@ -59,7 +59,7 @@ export default function CreditoModal({ isOpen, onClose, onSave, initialData = {}
               name="cliente"
               value={formData.cliente}
               onChange={handleChange}
-              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
+              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 uppercase"
               placeholder="Nombre del cliente"
             />
           </div>
@@ -74,7 +74,7 @@ export default function CreditoModal({ isOpen, onClose, onSave, initialData = {}
               name="descripcion"
               value={formData.descripcion}
               onChange={handleChange}
-              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
+              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 uppercase"
               placeholder="Detalle de la venta"
             />
           </div>

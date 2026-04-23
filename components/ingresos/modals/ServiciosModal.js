@@ -41,7 +41,7 @@ export default function ServiciosModal({ isOpen, onClose, onSave, type = 'tarjet
       ...prev,
       [name]: {
         ...prev[name],
-        [field]: value
+        [field]: (field === 'lote' && typeof value === 'string') ? value.toUpperCase() : value
       }
     }))
   }
@@ -96,7 +96,7 @@ export default function ServiciosModal({ isOpen, onClose, onSave, type = 'tarjet
                   <td className="px-4 py-2">
                     <input
                       type="text"
-                      className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                      className="w-full px-2 py-1 border border-gray-300 rounded text-sm uppercase"
                       value={services[name]?.lote || ''}
                       onChange={(e) => handleChange(name, 'lote', e.target.value)}
                       placeholder="Ref/Lote"
@@ -136,14 +136,14 @@ export default function ServiciosModal({ isOpen, onClose, onSave, type = 'tarjet
             <input
               type="text"
               value={newServiceName}
-              onChange={(e) => setNewServiceName(e.target.value)}
+              onChange={(e) => setNewServiceName(e.target.value.toUpperCase())}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault()
                   handleAddService()
                 }
               }}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 uppercase"
               placeholder="Ej: Servicio X"
             />
           </div>

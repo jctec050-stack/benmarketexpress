@@ -26,10 +26,11 @@ export default function EgresoForm({ onSubmit, initialData = null, onCancelEdit 
   const [motivoEdicion, setMotivoEdicion] = useState('')
 
   const handleChange = (e) => {
-    const { name, value } = e.target
+    const { name, value, type } = e.target
+    const finalValue = (type === 'text' || type === 'textarea') ? value.toUpperCase() : value
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: finalValue
     }))
   }
 
@@ -203,7 +204,7 @@ export default function EgresoForm({ onSubmit, initialData = null, onCancelEdit 
             <input
               type="text"
               name="referencia"
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-red-500 focus:outline-none text-gray-700 bg-white placeholder-gray-300"
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-red-500 focus:outline-none text-gray-700 bg-white placeholder-gray-300 uppercase"
               placeholder="Número de factura, recibo, etc."
               value={formData.referencia}
               onChange={handleChange}
@@ -218,11 +219,11 @@ export default function EgresoForm({ onSubmit, initialData = null, onCancelEdit 
               Motivo de la Edición <span className="text-red-500">* (Obligatorio)</span>
             </label>
             <textarea
-              className="w-full px-3 py-2 border border-yellow-300 rounded-lg focus:ring-yellow-500 focus:border-yellow-500 text-sm"
+              className="w-full px-3 py-2 border border-yellow-300 rounded-lg focus:ring-yellow-500 focus:border-yellow-500 text-sm uppercase"
               rows="2"
               placeholder="Ej: Corrección de monto por error de carga..."
               value={motivoEdicion}
-              onChange={(e) => setMotivoEdicion(e.target.value)}
+              onChange={(e) => setMotivoEdicion(e.target.value.toUpperCase())}
               required
             ></textarea>
             <p className="text-[10px] text-yellow-700 mt-1 font-medium">
