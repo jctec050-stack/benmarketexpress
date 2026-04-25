@@ -261,7 +261,7 @@ export default function ArqueoPage() {
     totalEfectivoBruto += totals.monedasExtranjeras.brl.montoGs
     totalEfectivoBruto += totals.monedasExtranjeras.ars.montoGs
 
-    const totalEgresosMonto = filteredEgresos.reduce((acc, curr) => acc + (curr.monto || 0), 0)
+    const totalEgresosMonto = filteredEgresos.reduce((acc, curr) => acc + Math.abs(curr.monto || 0), 0)
 
     return {
       isSaved: false,
@@ -739,7 +739,7 @@ export default function ArqueoPage() {
                         {e.descripcion || e.categoria}
                       </td>
                       <td className="py-1 text-right font-medium text-red-600">
-                        {formatCurrency(e.monto)}
+                        {formatCurrency(Math.abs(e.monto || 0))}
                       </td>
                     </tr>
                   )) : (
