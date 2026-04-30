@@ -119,6 +119,50 @@ export default function OperacionesPage() {
     return <div className="flex h-screen items-center justify-center">Cargando...</div>
   }
 
+  // --- BLOQUEO: Sin fecha de jornada ---
+  if (!selectedDate) {
+    return (
+      <div className="w-full">
+        <main className="container mx-auto px-4 py-8 max-w-4xl flex flex-col items-center">
+          <div className="w-full flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-800">Operaciones y Gastos</h1>
+              <p className="text-gray-500 text-sm mt-1">Registro de movimientos financieros</p>
+            </div>
+          </div>
+
+          <div className="w-full max-w-md mx-auto mt-8">
+            <div className="bg-white rounded-2xl shadow-lg border-t-4 border-gray-700 p-8 flex flex-col items-center gap-6 text-center">
+              <div className="bg-gray-100 rounded-full p-5">
+                <span className="text-5xl">📅</span>
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-gray-800 mb-2">Seleccione la Fecha de Jornada</h2>
+                <p className="text-gray-500 text-sm">
+                  Debe ingresar la fecha de trabajo antes de poder registrar operaciones.
+                </p>
+              </div>
+              <div className="w-full">
+                <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-2">
+                  Fecha de Jornada
+                </label>
+                <input
+                  type="date"
+                  value={selectedDate}
+                  onChange={(e) => setSelectedDate(e.target.value)}
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl text-gray-800 font-bold text-lg focus:outline-none focus:border-gray-600 text-center"
+                />
+              </div>
+              <p className="text-[11px] text-gray-400">
+                Esta fecha se asignará automáticamente a todos los movimientos registrados durante la jornada.
+              </p>
+            </div>
+          </div>
+        </main>
+      </div>
+    )
+  }
+
   return (
     <div className="w-full">
       <main className="container mx-auto px-4 py-8 max-w-4xl flex flex-col items-center">

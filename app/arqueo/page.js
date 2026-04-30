@@ -29,7 +29,8 @@ export default function ArqueoPage() {
     selectedCaja,
     setSelectedCaja,
     selectedCajero,
-    setSelectedCajero
+    setSelectedCajero,
+    clearSelectedDate
   } = useData()
   const router = useRouter()
 
@@ -428,6 +429,20 @@ export default function ArqueoPage() {
         )
         // Automatically show the saved arqueo now
         setArqueoSeleccionado(res.data)
+        // Auto-export PDF on save
+        const savedArqueoData = {
+          fecha: arqueoData.fecha,
+          caja: arqueoData.caja,
+          cajero: arqueoData.cajero,
+          fondo_fijo: arqueoData.fondo_fijo,
+          total_efectivo: arqueoData.total_efectivo,
+          total_egresos: arqueoData.total_egresos
+        }
+        exportArqueoPDF(savedArqueoData, dataToSave)
+        // Limpiar la fecha de jornada para forzar selección en el próximo ciclo
+        if (!displayData.isSaved) {
+          clearSelectedDate()
+        }
       } else {
         notifyError(
           displayData.isSaved ? 'Error al Actualizar' : 'Error al Guardar',

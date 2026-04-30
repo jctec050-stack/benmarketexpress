@@ -22,7 +22,7 @@ export const DataProvider = ({ children }) => {
   }
 
   // Selected Date, Box (Caja) and Cashier (Cajero) for filtering
-  const [selectedDate, setSelectedDate] = useState(getLocalISODate)
+  const [selectedDate, setSelectedDate] = useState('')
   const [selectedCaja, setSelectedCaja] = useState('Caja 1') // Default
   const [selectedCajero, setSelectedCajero] = useState('Todos los cajeros')
 
@@ -32,11 +32,8 @@ export const DataProvider = ({ children }) => {
       if (storedCaja) {
         setSelectedCaja(storedCaja)
       }
-
-      const storedDate = sessionStorage.getItem('fechaJornada')
-      if (storedDate) {
-        setSelectedDate(storedDate)
-      }
+      // La fecha NO se restaura intencionalmente: siempre debe ser
+      // seleccionada manualmente al inicio de cada jornada (Opción A)
     }
   }, [user])
 
@@ -49,9 +46,19 @@ export const DataProvider = ({ children }) => {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      sessionStorage.setItem('fechaJornada', selectedDate)
+      // Solo persistimos si hay fecha activa; al limpiar, se borra del storage
+      if (selectedDate) {
+        sessionStorage.setItem('fechaJornada', selectedDate)
+      } else {
+        sessionStorage.removeItem('fechaJornada')
+      }
     }
   }, [selectedDate])
+
+  // Limpia la fecha de jornada (llamada al guardar el arqueo)
+  const clearSelectedDate = () => {
+    setSelectedDate('')
+  }
 
   // Fetch data when user, date, caja or cajero changes
   useEffect(() => {
@@ -173,6 +180,7 @@ export const DataProvider = ({ children }) => {
       cotizaciones,
       loadingData,
       selectedDate,
+      clearSelectedDate,
       setSelectedDate,
       selectedCaja,
       setSelectedCaja,
