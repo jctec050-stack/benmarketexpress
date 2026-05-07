@@ -82,7 +82,7 @@ export default function Dashboard() {
       ...movimiento,
       id: movimiento?.id || genId(),
       fecha: movimiento?.fecha || datetimeString,
-      caja: movimiento?.caja || selectedCaja,
+      caja: (profile?.rol === 'tesoreria' && !movimiento?.id) ? 'Tesoreria' : (movimiento?.caja || selectedCaja),
       cajero: movimiento?.cajero || profile?.username || user?.email || 'unknown',
       arqueado: movimiento?.arqueado !== undefined ? movimiento.arqueado : false
     }

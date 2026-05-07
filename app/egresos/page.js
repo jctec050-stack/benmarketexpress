@@ -45,7 +45,7 @@ export default function EgresosPage() {
     const newEgreso = {
       ...egreso,
       fecha: datetimeString,
-      caja: selectedCaja,
+      caja: (profile?.rol === 'tesoreria' && !egreso.id) ? 'Tesoreria' : selectedCaja,
       cajero: profile?.username || user?.email || 'unknown',
       arqueado: false
     }

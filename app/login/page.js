@@ -63,6 +63,11 @@ export default function LoginPage() {
         throw new Error('Acceso denegado a Tesorería')
       }
 
+      if (profile.rol === 'tesoreria' && caja !== 'Tesoreria') {
+        await supabase.auth.signOut()
+        throw new Error('Su perfil solo permite iniciar sesión con la caja Tesoreria')
+      }
+
       if (profile.rol === 'cajero' && !caja) {
         throw new Error('Seleccione una caja')
       }

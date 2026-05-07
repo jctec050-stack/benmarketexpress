@@ -59,7 +59,7 @@ export default function OperacionesPage() {
     const newOperacion = {
       ...operacion,
       fecha: datetimeString,
-      caja: selectedCaja,
+      caja: (profile?.rol === 'tesoreria' && !editingOperacion?.id) ? 'Tesoreria' : selectedCaja,
       cajero: profile?.username || user?.email || 'unknown',
       usuarioId: user?.id,
       ...(editingOperacion?.id ? { id: editingOperacion.id } : {})
