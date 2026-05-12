@@ -62,12 +62,13 @@ export const AuthProvider = ({ children }) => {
 
   const fetchProfile = async (userId) => {
     try {
-      const { data, error } = await supabase
+      const { data: profiles, error } = await supabase
         .from('perfiles_usuarios')
         .select('*')
         .eq('id', userId)
-        .single()
+        .limit(1)
       
+      const data = profiles?.[0]
       if (!error && data) {
         setProfile(data)
       }
