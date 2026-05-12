@@ -42,12 +42,13 @@ export default function LoginPage() {
       }
 
       // 3. Get User Profile for Role Validation
-      const { data: profile, error: profileError } = await supabase
+      const { data: profiles, error: profileError } = await supabase
         .from('perfiles_usuarios')
         .select('*')
         .eq('id', data.user.id)
         .limit(1)
-        .maybeSingle()
+
+      const profile = profiles?.[0]
 
       if (profileError || !profile) {
         throw new Error('Error al obtener perfil')
