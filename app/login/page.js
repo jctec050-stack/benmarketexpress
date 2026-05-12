@@ -46,7 +46,8 @@ export default function LoginPage() {
         .from('perfiles_usuarios')
         .select('*')
         .eq('id', data.user.id)
-        .single()
+        .limit(1)
+        .maybeSingle()
 
       if (profileError || !profile) {
         throw new Error('Error al obtener perfil')
