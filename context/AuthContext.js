@@ -39,6 +39,13 @@ export const AuthProvider = ({ children }) => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log(`Supabase Auth Event: ${event}`)
       
+      // DEBUG PARA SUPERMIUM:
+      if (session) {
+        console.log(`SUPERMIUM DEBUG - Date.now (s):`, Math.round(Date.now() / 1000));
+        console.log(`SUPERMIUM DEBUG - Session expires_at:`, session.expires_at);
+        console.log(`SUPERMIUM DEBUG - Token:`, session.access_token ? "SI" : "NO");
+      }
+
       if (session) {
         setUser(session.user)
         fetchProfile(session.user.id)
