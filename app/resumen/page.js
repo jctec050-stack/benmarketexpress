@@ -379,7 +379,7 @@ export default function ResumenPage() {
           </button>
 
           <button 
-            onClick={() => exportResumenPDF(tableData, metrics, { start: startDate, end: endDate }, summaryData, saldoAnterior, requestedDeposits)}
+            onClick={() => exportResumenPDF(tableData, metrics, { start: startDate, end: endDate }, summaryData, saldoAnterior, requestedDeposits, filteredEgresosList)}
             className="px-4 py-2 bg-red-700 text-white rounded-md hover:bg-red-800 flex items-center gap-2 transform active:scale-95 transition-all shadow-sm"
           >
             📄 PDF
@@ -708,6 +708,12 @@ export default function ResumenPage() {
                       <span className="font-black text-gray-900">{formatCurrency(summaryData.ingresosOtros.inversionRetiro)}</span>
                     </div>
                   )}
+                  {summaryData.ingresosOtros.sobrantes > 0 && (
+                    <div className="flex justify-between items-center px-5 py-3.5 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-all cursor-default">
+                      <span className="uppercase font-bold text-gray-500 text-xs tracking-wider">Sobrantes de Efectivo</span>
+                      <span className="font-black text-gray-900">{formatCurrency(summaryData.ingresosOtros.sobrantes)}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between items-center px-5 py-4 bg-green-50/50 rounded-2xl border border-green-100 shadow-sm mt-4">
                     <span className="uppercase font-bold text-green-700 text-xs tracking-wider">Efectivo (Ventas)</span>
                     <span className="font-black text-green-700 text-lg">{formatCurrency(metrics.totalIngresoTiendaSistema)}</span>
@@ -727,6 +733,7 @@ export default function ResumenPage() {
                         Object.values(summaryData.servicios).reduce((a,b)=>a+b,0) + 
                         summaryData.ingresosOtros.inversiones + 
                         summaryData.ingresosOtros.inversionRetiro + 
+                        (summaryData.ingresosOtros.sobrantes || 0) +
                         metrics.totalIngresoTiendaSistema + 
                         saldoAnterior
                       )}
@@ -787,6 +794,7 @@ export default function ResumenPage() {
                         (Object.values(summaryData.servicios).reduce((a,b)=>a+b,0) + 
                           summaryData.ingresosOtros.inversiones + 
                           summaryData.ingresosOtros.inversionRetiro + 
+                          (summaryData.ingresosOtros.sobrantes || 0) +
                           metrics.totalIngresoTiendaSistema + 
                           saldoAnterior) - 
                         (Object.values(summaryData.egresos).reduce((a,b)=>a+b,0))
@@ -798,11 +806,37 @@ export default function ResumenPage() {
                 <div className="flex flex-col sm:flex-row gap-4 mt-6 md:mt-0">
                   <button 
                     onClick={handleCerrarDia}
-                    className="px-8 py-4 bg-gradient-to-br from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-black uppercase tracking-widest text-xs rounded-2xl transition-all shadow-lg active:scale-95 border border-red-500/50 flex items-center justify-center gap-2"
+                    className="px-8 py-4 bg-white text-gray-900 font-black rounded-2xl hover:bg-gray-100 transition-all transform active:scale-95 shadow-[0_10px_20px_rgba(255,255,255,0.1)] flex items-center gap-3"
                   >
-                    <span>💾</span> GUARDAR BALANCE
+                    <Building2 size={20} />
+                    GUARDAR CIERRE
                   </button>
                 </div>
+              </div>
+            </div>
+
+            {/* Total a Entregar per Cashier */}
+            <div className="w-full max-w-3xl mt-8 animate-fade-in">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="h-px flex-1 bg-gray-200"></div>
+                <h4 className="text-gray-400 font-black uppercase text-[10px] tracking-[0.3em]">Efectivo a Entregar (Billetes Gs.)</h4>
+                <div className="h-px flex-1 bg-gray-200"></div>
+              </div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                {tableData.map((row, idx) => (
+                  <div key={idx} className="bg-white p-5 rounded-[1.5rem] shadow-sm border border-gray-100 flex flex-col items-center group hover:border-blue-200 hover:shadow-md transition-all">
+                    <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center mb-3 group-hover:bg-blue-50 transition-colors">
+                      <span className="text-xs font-bold text-gray-400 group-hover:text-blue-500">{row.nombreCajero.charAt(0)}</span>
+                    </div>
+                    <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">{row.nombreCajero}</span>
+                    <span className="text-xl font-black text-gray-900">{formatCurrency(row.totalAEntregar)}</span>
+                    <div className="flex items-center gap-1.5 mt-2">
+                       <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
+                       <span className="text-[9px] text-gray-500 font-bold uppercase tracking-tighter">{row.nombreCaja}</span>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>

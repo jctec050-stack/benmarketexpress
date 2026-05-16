@@ -24,10 +24,16 @@ export default function OperacionForm({ onSubmit, nextReceiptNumber, initialData
 
   useEffect(() => {
     if (initialData) {
+      let initialTipo = initialData.tipo || 'gasto'
+      if (initialData.tipo === 'operacion') {
+        if (initialData.categoria === 'SOBRANTE DE CAJA') initialTipo = 'sobrante'
+        else if (initialData.categoria === 'FALTANTE DE CAJA') initialTipo = 'faltante'
+      }
+
       setFormData({
         id: initialData.id,
         fecha: initialData.fecha ? initialData.fecha.split('T')[0] : '',
-        tipo: initialData.tipo || 'gasto',
+        tipo: initialTipo,
         receptor: initialData.receptor || '',
         descripcion: initialData.descripcion || '',
         monto: Math.abs(initialData.monto || 0),
@@ -98,22 +104,35 @@ export default function OperacionForm({ onSubmit, nextReceiptNumber, initialData
       return
     }
 
-    // Adjust sign: everything is negative except investments
-    const isPositive = formData.tipo === 'deposito-inversiones' || formData.tipo === 'inversion-retiro'
+    // Adjust sign: everything is negative except investments and sobrante
+    const isPositive = formData.tipo === 'deposito-inversiones' || formData.tipo === 'inversion-retiro' || formData.tipo === 'sobrante'
     const finalMonto = isPositive ? Math.abs(montoNum) : -Math.abs(montoNum)
+
+    // Map internal types to allowed DB types
+    let dbTipo = formData.tipo
+    let dbCat = formData.tipo === 'egreso' ? 'Pago a Proveedor' : (formData.tipo === 'gasto' ? 'Gastos Administrativos' : null)
+    
+    if (formData.tipo === 'sobrante') {
+      dbTipo = 'operacion'
+      dbCat = 'SOBRANTE DE CAJA'
+    } else if (formData.tipo === 'faltante') {
+      dbTipo = 'operacion'
+      dbCat = 'FALTANTE DE CAJA'
+    }
 
     const operacion = {
       ...(formData.id ? { id: formData.id } : {}),
       fecha: formData.fecha,
-      tipo: formData.tipo,
+      tipo: dbTipo,
       receptor: formData.receptor || null,
       descripcion: (formData.tipo === 'inversion-retiro' && !formData.descripcion.trim()) ? 'Inversion-Retiro de fondos' : formData.descripcion,
       monto: finalMonto,
       moneda: formData.moneda,
       referencia: formData.referencia || null,
-      numeroRecibo: formData.tipo === 'operacion' ? formData.numeroRecibo : null,
+      numeroRecibo: (dbTipo === 'operacion' && formData.numeroRecibo) ? parseInt(formData.numeroRecibo) : null,
       arqueado: false,
-      motivoEdicion: motivoEdicion
+      motivoEdicion: motivoEdicion,
+      categoria: dbCat
     }
 
     onSubmit(operacion)
@@ -173,6 +192,8 @@ export default function OperacionForm({ onSubmit, nextReceiptNumber, initialData
             <option value="deposito-inversiones">Deposito - Inversiones</option>
             <option value="deposito-bocas">Deposito Bocas de Cobranzas</option>
             <option value="inversion-retiro">Inversion-Retiro de fondos</option>
+            <option value="sobrante">Sobrante de efectivo (Ingreso)</option>
+            <option value="faltante">Faltante de efectivo (Egreso)</option>
           </select>
         </div>
 
