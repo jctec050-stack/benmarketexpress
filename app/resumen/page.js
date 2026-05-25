@@ -158,7 +158,7 @@ export default function ResumenPage() {
              if (m.servicios) {
                 Object.entries(m.servicios).forEach(([k, s]) => {
                    const monto = s.monto || 0;
-                   if (monto > 0) {
+                   if (monto !== 0) {
                       const cat = Object.values(SERVICIOS_CATALOGO).find(c => c.key === k);
                       const label = cat ? cat.label : k;
                       tempSums[label] = (tempSums[label] || 0) + monto;
@@ -169,7 +169,7 @@ export default function ResumenPage() {
                 const arr = m.otrosServicios || m.otros_servicios;
                 arr.forEach(s => {
                    const monto = s.monto || 0;
-                   if (monto > 0) {
+                   if (monto !== 0) {
                       const label = s.nombre || 'Otros Servicios';
                       tempSums[label] = (tempSums[label] || 0) + monto;
                    }
@@ -690,7 +690,7 @@ export default function ResumenPage() {
               <div className="p-8 flex-1 flex flex-col space-y-6">
                 {/* Items */}
                 <div className="space-y-3 flex-1">
-                  {Object.entries(summaryData.servicios).map(([key, val]) => val > 0 && (
+                  {Object.entries(summaryData.servicios).map(([key, val]) => val !== 0 && (
                     <div key={key} className="flex justify-between items-center px-5 py-3.5 bg-gray-50 rounded-2xl hover:bg-gray-100 hover:scale-[1.01] transition-all cursor-default">
                       <span className="uppercase font-bold text-gray-500 text-xs tracking-wider">{key}</span>
                       <span className="font-black text-gray-900">{formatCurrency(val)}</span>
