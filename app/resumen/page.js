@@ -206,6 +206,7 @@ export default function ResumenPage() {
     const totalIngresos = Object.values(summaryData.servicios).reduce((a,b)=>a+b,0) + 
                          summaryData.ingresosOtros.inversiones + 
                          summaryData.ingresosOtros.inversionRetiro + 
+                         (summaryData.ingresosOtros.sobrantes || 0) +
                          metrics.totalIngresoTiendaSistema + 
                          saldoAnterior;
     const totalEgresos = Object.values(summaryData.egresos).reduce((a,b)=>a+b,0);
