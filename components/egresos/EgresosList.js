@@ -94,7 +94,7 @@ export default function EgresosList({
           filteredEgresos.map((egreso) => (
             <div key={egreso.id} className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-red-600 hover:shadow-md transition-all flex justify-between items-center group">
               <div className="space-y-1">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-bold text-gray-800 text-md">{egreso.descripcion}</span>
                   {egreso.categoria === 'Pago a Proveedor' && egreso.receptor && (
                     <span className="bg-blue-50 text-blue-700 text-[10px] px-2 py-0.5 rounded font-bold border border-blue-100">
@@ -109,6 +109,11 @@ export default function EgresosList({
                   <span className="text-[10px] text-gray-400 font-bold uppercase tracking-tight bg-gray-50 px-2 py-0.5 rounded">
                     {egreso.categoria}
                   </span>
+                  {egreso.historialEdiciones && egreso.historialEdiciones.length > 0 && (
+                    <span className="bg-amber-50 text-amber-700 text-[10px] px-2 py-0.5 rounded font-bold border border-amber-200 flex items-center gap-1" title={`Motivo: ${egreso.historialEdiciones[egreso.historialEdiciones.length - 1].motivo}`}>
+                      <span>⚠️</span> Editado por: {egreso.historialEdiciones[egreso.historialEdiciones.length - 1].usuario}
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-center gap-4 text-[11px] text-gray-400 font-bold uppercase">
                   <span className="flex items-center gap-1">

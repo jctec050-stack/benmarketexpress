@@ -149,6 +149,12 @@ export default function MovimientosList({
                       <span className="mr-1">👤</span>
                       {mov.cajero || 'Desconocido'}
                     </span>
+                    {mov.historialEdiciones && mov.historialEdiciones.length > 0 && (
+                      <span className="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full flex items-center border border-amber-200" title={`Motivo: ${mov.historialEdiciones[mov.historialEdiciones.length - 1].motivo}`}>
+                        <span className="mr-1">⚠️</span>
+                        Editado por: {mov.historialEdiciones[mov.historialEdiciones.length - 1].usuario}
+                      </span>
+                    )}
                   </div>
                   
                   {/* Ventas Tienda Section */}

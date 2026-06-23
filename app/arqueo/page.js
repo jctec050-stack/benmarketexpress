@@ -398,7 +398,8 @@ export default function ArqueoPage() {
       const arqueoData = {
         fecha: selectedDate,
         caja: selectedCaja,
-        cajero: profile?.username || user?.email || 'unknown',
+        cajero: arqueoSeleccionado?.cajero || (selectedCajero !== 'Todos los cajeros' ? selectedCajero : null) || profile?.username || user?.email || 'unknown',
+        usuarioId: arqueoSeleccionado?.usuarioId || arqueoSeleccionado?.usuario_id || null,
         fondo_fijo: dataToSave.fondoFijo,
         total_efectivo: dataToSave.totalEfectivoBruto,
         total_egresos: dataToSave.totalEgresosMonto,

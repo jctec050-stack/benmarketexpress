@@ -109,7 +109,8 @@ export const DataProvider = ({ children }) => {
 
   // CRUD Wrappers that update local state immediately (Optimistic UI could be added here)
   const addIngreso = async (item) => {
-    const res = await db.saveMovimientoTemporal(item)
+    const editorName = profile?.nombre || profile?.username || user?.email || 'Desconocido'
+    const res = await db.saveMovimientoTemporal(item, editorName)
     if (res.success) await refreshData() // Or append to state directly
     return res
   }
@@ -121,7 +122,8 @@ export const DataProvider = ({ children }) => {
   }
 
   const addEgreso = async (item) => {
-    const res = await db.saveEgreso(item)
+    const editorName = profile?.nombre || profile?.username || user?.email || 'Desconocido'
+    const res = await db.saveEgreso(item, editorName)
     if (res.success) await refreshData()
     return res
   }
@@ -151,7 +153,8 @@ export const DataProvider = ({ children }) => {
   }
 
   const addMovimiento = async (item) => {
-    const res = await db.saveMovimiento(item)
+    const editorName = profile?.nombre || profile?.username || user?.email || 'Desconocido'
+    const res = await db.saveMovimiento(item, editorName)
     if (res.success) await refreshData()
     return res
   }
