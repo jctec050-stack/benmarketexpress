@@ -7,9 +7,9 @@ import { db } from '@/lib/db'
 import { formatCurrency, parseCurrency } from '@/lib/utils'
 import { processResumenData } from '@/lib/resumenLogic'
 import { exportResumenExcel } from '@/lib/excelExport'
-import { exportResumenPDF } from '@/lib/pdfExport'
+import { exportResumenPDF, exportDetailPDF } from '@/lib/pdfExport'
 import { useNotifications } from '@/context/NotificationContext'
-import { SERVICIOS_CATALOGO } from '@/lib/config'
+import { SERVICIOS_CATALOGO, CONFIG } from '@/lib/config'
 import Modal from '@/components/ui/Modal'
 import { Search, Eye, Building2 } from 'lucide-react'
 
@@ -46,6 +46,19 @@ export default function ResumenPage() {
   // Deposit State
   const [requestedDeposits, setRequestedDeposits] = useState({})
   const [isSavingDeposits, setIsSavingDeposits] = useState(false)
+
+  // Efectivo Real al Cierre States
+  const [efectivoReal, setEfectivoReal] = useState(0)
+  const [efectivoRealDetalle, setEfectivoRealDetalle] = useState({
+    efectivoGs: {},
+    monedasExtranjeras: {
+      usd: { cantidad: 0, cotizacion: 7000 },
+      brl: { cantidad: 0, cotizacion: 1250 },
+      ars: { cantidad: 0, cotizacion: 0 }
+    }
+  })
+  const [globalCotizaciones, setGlobalCotizaciones] = useState({ usd: 7000, brl: 1250, ars: 0 })
+  const [isEfectivoModalOpen, setIsEfectivoModalOpen] = useState(false)
 
   // Metric Drill-down state
   const [rawMovements, setRawMovements] = useState([])
@@ -130,6 +143,42 @@ export default function ResumenPage() {
       const resDepositos = await db.getDepositosServicios(startDate, cajaSearch)
       setRequestedDeposits(resDepositos?.data?.[0]?.servicios || {})
 
+      // 5. Fetch Global Cotizaciones first
+      let activeCotizaciones = { usd: 7000, brl: 1250, ars: 0 }
+      const resCot = await db.getCotizaciones()
+      if (resCot?.success && resCot.data) {
+        activeCotizaciones = {
+          usd: parseInt(resCot.data.usd) || 7000,
+          brl: parseInt(resCot.data.brl) || 1250,
+          ars: parseInt(resCot.data.ars) || 0
+        }
+        setGlobalCotizaciones(activeCotizaciones)
+      }
+
+      // 6. Fetch Total General of Current Day (to reload physical cash if already saved)
+      const resCurrentTotal = await db.getTotalGeneral(startDate, cajaSearch)
+      if (resCurrentTotal?.success && resCurrentTotal.data) {
+        setEfectivoReal(resCurrentTotal.data.efectivo_real || 0)
+        setEfectivoRealDetalle(resCurrentTotal.data.efectivo_real_detalle || {
+          efectivoGs: {},
+          monedasExtranjeras: {
+            usd: { cantidad: 0, cotizacion: activeCotizaciones.usd },
+            brl: { cantidad: 0, cotizacion: activeCotizaciones.brl },
+            ars: { cantidad: 0, cotizacion: activeCotizaciones.ars }
+          }
+        })
+      } else {
+        setEfectivoReal(0)
+        setEfectivoRealDetalle({
+          efectivoGs: {},
+          monedasExtranjeras: {
+            usd: { cantidad: 0, cotizacion: activeCotizaciones.usd },
+            brl: { cantidad: 0, cotizacion: activeCotizaciones.brl },
+            ars: { cantidad: 0, cotizacion: activeCotizaciones.ars }
+          }
+        })
+      }
+
     } catch (error) {
       console.error("Error fetching resumen data:", error)
     } finally {
@@ -198,6 +247,21 @@ export default function ResumenPage() {
      loadSaved();
   }, [depositosHasta, selectedCaja])
 
+  const recalculateEfectivoReal = (detalle) => {
+    let totalGs = 0;
+    if (detalle.efectivoGs) {
+      Object.entries(detalle.efectivoGs).forEach(([den, cant]) => {
+        totalGs += (parseInt(den) * (parseInt(cant) || 0));
+      });
+    }
+    if (detalle.monedasExtranjeras) {
+      Object.entries(detalle.monedasExtranjeras).forEach(([mon, obj]) => {
+        totalGs += ((parseFloat(obj.cantidad) || 0) * (parseFloat(obj.cotizacion) || 0));
+      });
+    }
+    return totalGs;
+  };
+
   const exportGeneralToExcel = () => {
      exportResumenExcel(summaryData, metrics, tableData, startDate, endDate, selectedCaja)
   }
@@ -213,7 +277,7 @@ export default function ResumenPage() {
     const totalGral = totalIngresos - totalEgresos;
 
     const cajaSave = selectedCaja === 'Todas las cajas' ? 'Todas las Cajas' : selectedCaja
-    const res = await db.saveTotalGeneral(startDate, cajaSave, totalGral)
+    const res = await db.saveTotalGeneral(startDate, cajaSave, totalGral, efectivoReal, efectivoRealDetalle)
     
     if (res.success) {
       success('Balance Guardado', 'El balance del día se registró correctamente.')
@@ -270,16 +334,43 @@ export default function ResumenPage() {
     }))
   }
 
-  // Derived filtered egresos
-  const filteredEgresosList = egresosList.filter(e => {
-    const f = egresosFilters
-    const matchCajero = !f.cajero || (e.cajero || '').toLowerCase().includes(f.cajero.toLowerCase())
-    const matchCategoria = !f.categoria || (e.categoria || '').toLowerCase().includes(f.categoria.toLowerCase())
-    const matchReceptor = !f.receptor || (e.receptor || '').toLowerCase().includes(f.receptor.toLowerCase())
-    const matchDescripcion = !f.descripcion || (e.descripcion || '').toLowerCase().includes(f.descripcion.toLowerCase())
-    const matchMonto = !f.montoMin || (e.monto || 0) >= parseFloat(f.montoMin)
-    return matchCajero && matchCategoria && matchReceptor && matchDescripcion && matchMonto
-  })
+  // Derived filtered egresos (split into Proveedores, Retiros, and Gastos)
+  const filteredProveedoresList = egresosList
+    .filter(e => e.categoria === 'Pago a Proveedor')
+    .filter(e => {
+      const f = egresosFilters
+      const matchCajero = !f.cajero || (e.cajero || '').toLowerCase().includes(f.cajero.toLowerCase())
+      const matchReceptor = !f.receptor || (e.receptor || '').toLowerCase().includes(f.receptor.toLowerCase())
+      const matchDescripcion = !f.descripcion || (e.descripcion || '').toLowerCase().includes(f.descripcion.toLowerCase())
+      const matchMonto = !f.montoMin || (e.monto || 0) >= parseFloat(f.montoMin)
+      return matchCajero && matchReceptor && matchDescripcion && matchMonto
+    })
+
+  const filteredRetirosList = egresosList
+    .filter(e => e.categoria === 'Retiro de Fondos')
+    .filter(e => {
+      const f = egresosFilters
+      const matchCajero = !f.cajero || (e.cajero || '').toLowerCase().includes(f.cajero.toLowerCase())
+      const matchReceptor = !f.receptor || (e.receptor || '').toLowerCase().includes(f.receptor.toLowerCase())
+      const matchDescripcion = !f.descripcion || (e.descripcion || '').toLowerCase().includes(f.descripcion.toLowerCase())
+      const matchMonto = !f.montoMin || (e.monto || 0) >= parseFloat(f.montoMin)
+      return matchCajero && matchReceptor && matchDescripcion && matchMonto
+    })
+
+  const filteredGastosList = egresosList
+    .filter(e => e.categoria !== 'Pago a Proveedor' && e.categoria !== 'Retiro de Fondos')
+    .filter(e => {
+      const f = egresosFilters
+      const matchCajero = !f.cajero || (e.cajero || '').toLowerCase().includes(f.cajero.toLowerCase())
+      const matchCategoria = !f.categoria || (e.categoria || '').toLowerCase().includes(f.categoria.toLowerCase())
+      const matchReceptor = !f.receptor || (e.receptor || '').toLowerCase().includes(f.receptor.toLowerCase())
+      const matchDescripcion = !f.descripcion || (e.descripcion || '').toLowerCase().includes(f.descripcion.toLowerCase())
+      const matchMonto = !f.montoMin || (e.monto || 0) >= parseFloat(f.montoMin)
+      return matchCajero && matchCategoria && matchReceptor && matchDescripcion && matchMonto
+    })
+
+  const filteredEgresosList = [...filteredProveedoresList, ...filteredRetirosList, ...filteredGastosList]
+
 
   const handleFilterChange = (name, value) => {
     setEgresosFilters(prev => ({ ...prev, [name]: value }))
@@ -380,7 +471,7 @@ export default function ResumenPage() {
           </button>
 
           <button 
-            onClick={() => exportResumenPDF(tableData, metrics, { start: startDate, end: endDate }, summaryData, saldoAnterior, requestedDeposits, filteredEgresosList)}
+            onClick={() => exportResumenPDF(tableData, metrics, { start: startDate, end: endDate }, summaryData, saldoAnterior, requestedDeposits, filteredEgresosList, efectivoReal)}
             className="px-4 py-2 bg-red-700 text-white rounded-md hover:bg-red-800 flex items-center gap-2 transform active:scale-95 transition-all shadow-sm"
           >
             📄 PDF
@@ -536,10 +627,96 @@ export default function ResumenPage() {
           </div>
         </div>
 
-        {/* --- EGRESOS TABLE --- */}
-        <div className="bg-white rounded-lg shadow overflow-hidden">
+        {/* --- PROVEEDORES TABLE --- */}
+        <div className="bg-white rounded-lg shadow overflow-hidden mb-8">
+          <div className="bg-[#c62828] text-white px-6 py-3 font-bold text-lg">
+            PAGOS A PROVEEDORES
+          </div>
+          <div className="overflow-x-auto max-h-[500px] overflow-y-auto">
+            <table className="w-full text-sm text-left">
+              <thead className="bg-gray-100 text-gray-600 uppercase font-bold sticky top-0 z-10 shadow-sm">
+                <tr>
+                  <th className="px-6 py-3">Fecha</th>
+                  <th className="px-6 py-3">Cajero</th>
+                  <th className="px-6 py-3">Proveedor</th>
+                  <th className="px-6 py-3">Descripción</th>
+                  <th className="px-6 py-3 text-right">Monto</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {/* FILTERS ROW */}
+                <tr className="bg-gray-50 border-b sticky top-[48px] z-10 shadow-sm">
+                  <td className="px-6 py-2"></td>
+                  <td className="px-6 py-2">
+                    <input 
+                      type="text" 
+                      placeholder="Filtrar..."
+                      className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:border-blue-500 outline-none"
+                      value={egresosFilters.cajero}
+                      onChange={(e) => handleFilterChange('cajero', e.target.value)}
+                    />
+                  </td>
+                  <td className="px-6 py-2">
+                    <input 
+                      type="text" 
+                      placeholder="Filtrar..."
+                      className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:border-blue-500 outline-none"
+                      value={egresosFilters.receptor}
+                      onChange={(e) => handleFilterChange('receptor', e.target.value)}
+                    />
+                  </td>
+                  <td className="px-6 py-2">
+                    <input 
+                      type="text" 
+                      placeholder="Filtrar..."
+                      className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:border-blue-500 outline-none"
+                      value={egresosFilters.descripcion}
+                      onChange={(e) => handleFilterChange('descripcion', e.target.value)}
+                    />
+                  </td>
+                  <td className="px-6 py-2">
+                    <input 
+                      type="number" 
+                      placeholder="Min..."
+                      className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:border-blue-500 outline-none"
+                      value={egresosFilters.montoMin}
+                      onChange={(e) => handleFilterChange('montoMin', e.target.value)}
+                    />
+                  </td>
+                </tr>
+
+                {filteredProveedoresList.length > 0 ? (
+                  <>
+                    {filteredProveedoresList.map((e, i) => (
+                      <tr key={i} className="hover:bg-gray-50">
+                        <td className="px-6 py-4">{new Date(e.fecha).toLocaleDateString()}</td>
+                        <td className="px-6 py-4">{e.cajero || 'N/A'}</td>
+                        <td className="px-6 py-4 font-medium text-gray-700">{e.receptor || '---'}</td>
+                        <td className="px-6 py-4">{e.descripcion}</td>
+                        <td className="px-6 py-4 text-right text-red-600 font-medium">
+                          {formatCurrency(e.monto)}
+                        </td>
+                      </tr>
+                    ))}
+                    <tr className="bg-gray-100 font-bold border-t-2 border-gray-300">
+                      <td colSpan="4" className="px-6 py-4 uppercase">Total Proveedores:</td>
+                      <td className="px-6 py-4 text-right text-red-600">
+                        {formatCurrency(filteredProveedoresList.reduce((acc, e) => acc + (e.monto || 0), 0))}
+                      </td>
+                    </tr>
+                  </>
+                ) : (
+                  <tr><td colSpan="5" className="text-center py-8 text-gray-500">No hay pagos a proveedores que coincidan</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* --- GASTOS ADMINISTRATIVOS TABLE --- */}
+        <div className="bg-white rounded-lg shadow overflow-hidden mb-8">
           <div className="bg-gray-800 text-white px-6 py-3 font-bold text-lg">
-            PAGOS / EGRESOS
+            GASTOS ADMINISTRATIVOS
           </div>
           <div className="overflow-x-auto max-h-[500px] overflow-y-auto">
             <table className="w-full text-sm text-left">
@@ -554,7 +731,7 @@ export default function ResumenPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {/* FILTERS ROW - Also sticky for convenience */}
+                {/* FILTERS ROW */}
                 <tr className="bg-gray-50 border-b sticky top-[48px] z-10 shadow-sm">
                   <td className="px-6 py-2"></td>
                   <td className="px-6 py-2">
@@ -604,9 +781,9 @@ export default function ResumenPage() {
                   </td>
                 </tr>
 
-                {filteredEgresosList.length > 0 ? (
+                {filteredGastosList.length > 0 ? (
                   <>
-                    {filteredEgresosList.map((e, i) => (
+                    {filteredGastosList.map((e, i) => (
                       <tr key={i} className="hover:bg-gray-50">
                         <td className="px-6 py-4">{new Date(e.fecha).toLocaleDateString()}</td>
                         <td className="px-6 py-4">{e.cajero || 'N/A'}</td>
@@ -619,19 +796,106 @@ export default function ResumenPage() {
                       </tr>
                     ))}
                     <tr className="bg-gray-100 font-bold border-t-2 border-gray-300">
-                      <td colSpan="5" className="px-6 py-4 uppercase">Total Egresos:</td>
+                      <td colSpan="5" className="px-6 py-4 uppercase">Total Gastos:</td>
                       <td className="px-6 py-4 text-right text-red-600">
-                        {formatCurrency(filteredEgresosList.reduce((acc, e) => acc + (e.monto || 0), 0))}
+                        {formatCurrency(filteredGastosList.reduce((acc, e) => acc + (e.monto || 0), 0))}
                       </td>
                     </tr>
                   </>
                 ) : (
-                  <tr><td colSpan="6" className="text-center py-8 text-gray-500">No hay egresos que coincidan</td></tr>
+                  <tr><td colSpan="6" className="text-center py-8 text-gray-500">No hay gastos administrativos que coincidan</td></tr>
                 )}
               </tbody>
             </table>
           </div>
         </div>
+
+        {/* --- RETIRO DE FONDOS TABLE --- */}
+        <div className="bg-white rounded-lg shadow overflow-hidden mb-8">
+          <div className="bg-teal-700 text-white px-6 py-3 font-bold text-lg">
+            RETIRO DE FONDOS
+          </div>
+          <div className="overflow-x-auto max-h-[500px] overflow-y-auto">
+            <table className="w-full text-sm text-left">
+              <thead className="bg-gray-100 text-gray-600 uppercase font-bold sticky top-0 z-10 shadow-sm">
+                <tr>
+                  <th className="px-6 py-3">Fecha</th>
+                  <th className="px-6 py-3">Cajero</th>
+                  <th className="px-6 py-3">Receptor</th>
+                  <th className="px-6 py-3">Descripción</th>
+                  <th className="px-6 py-3 text-right">Monto</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {/* FILTERS ROW */}
+                <tr className="bg-gray-50 border-b sticky top-[48px] z-10 shadow-sm">
+                  <td className="px-6 py-2"></td>
+                  <td className="px-6 py-2">
+                    <input 
+                      type="text" 
+                      placeholder="Filtrar..."
+                      className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:border-blue-500 outline-none"
+                      value={egresosFilters.cajero}
+                      onChange={(e) => handleFilterChange('cajero', e.target.value)}
+                    />
+                  </td>
+                  <td className="px-6 py-2">
+                    <input 
+                      type="text" 
+                      placeholder="Filtrar..."
+                      className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:border-blue-500 outline-none"
+                      value={egresosFilters.receptor}
+                      onChange={(e) => handleFilterChange('receptor', e.target.value)}
+                    />
+                  </td>
+                  <td className="px-6 py-2">
+                    <input 
+                      type="text" 
+                      placeholder="Filtrar..."
+                      className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:border-blue-500 outline-none"
+                      value={egresosFilters.descripcion}
+                      onChange={(e) => handleFilterChange('descripcion', e.target.value)}
+                    />
+                  </td>
+                  <td className="px-6 py-2">
+                    <input 
+                      type="number" 
+                      placeholder="Min..."
+                      className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:border-blue-500 outline-none"
+                      value={egresosFilters.montoMin}
+                      onChange={(e) => handleFilterChange('montoMin', e.target.value)}
+                    />
+                  </td>
+                </tr>
+
+                {filteredRetirosList.length > 0 ? (
+                  <>
+                    {filteredRetirosList.map((e, i) => (
+                      <tr key={i} className="hover:bg-gray-50">
+                        <td className="px-6 py-4">{new Date(e.fecha).toLocaleDateString()}</td>
+                        <td className="px-6 py-4">{e.cajero || 'N/A'}</td>
+                        <td className="px-6 py-4 font-medium text-gray-700">{e.receptor || '---'}</td>
+                        <td className="px-6 py-4">{e.descripcion}</td>
+                        <td className="px-6 py-4 text-right text-red-600 font-medium">
+                          {formatCurrency(e.monto)}
+                        </td>
+                      </tr>
+                    ))}
+                    <tr className="bg-gray-100 font-bold border-t-2 border-gray-300">
+                      <td colSpan="4" className="px-6 py-4 uppercase">Total Retiros:</td>
+                      <td className="px-6 py-4 text-right text-red-600">
+                        {formatCurrency(filteredRetirosList.reduce((acc, e) => acc + (e.monto || 0), 0))}
+                      </td>
+                    </tr>
+                  </>
+                ) : (
+                  <tr><td colSpan="5" className="text-center py-8 text-gray-500">No hay retiros de fondos que coincidan</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
 
         {/* --- INVERSIONES TABLE --- */}
         <div className="bg-white rounded-lg shadow overflow-hidden mt-8">
@@ -781,35 +1045,67 @@ export default function ResumenPage() {
         {/* FINAL RESULTS FOOTER */}
         {summaryData && (
           <div className="mb-20 flex flex-col items-center">
-            <div className="bg-gray-900 rounded-[2rem] shadow-2xl overflow-hidden border border-gray-800 relative w-full max-w-3xl">
+            <div className="bg-gray-900 rounded-2xl shadow-xl overflow-hidden border border-gray-800 relative w-full max-w-3xl">
               
               {/* Decorative elements */}
               <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-red-500 to-red-800"></div>
               
-              <div className="px-10 py-8 md:px-12 flex flex-col md:flex-row justify-between items-center gap-8 relative z-10">
-                <div className="flex flex-col space-y-1 text-center md:text-left">
-                  <span className="text-[10px] text-gray-400 font-bold uppercase tracking-[0.2em]">Resultado Neto (Cierre)</span>
-                  <div className="text-4xl md:text-5xl font-black text-white flex items-center justify-center md:justify-start gap-3">
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-300">
-                      {formatCurrency(
-                        (Object.values(summaryData.servicios).reduce((a,b)=>a+b,0) + 
-                          summaryData.ingresosOtros.inversiones + 
-                          summaryData.ingresosOtros.inversionRetiro + 
-                          (summaryData.ingresosOtros.sobrantes || 0) +
-                          metrics.totalIngresoTiendaSistema + 
-                          saldoAnterior) - 
-                        (Object.values(summaryData.egresos).reduce((a,b)=>a+b,0))
-                      )}
-                    </span>
-                  </div>
+              <div className="px-6 py-5 md:px-8 flex flex-col md:flex-row justify-between items-center gap-5 relative z-10 w-full">
+                <div className="flex flex-wrap gap-5 items-center justify-center md:justify-start flex-grow">
+                  {(() => {
+                    const sistemaNeto = (Object.values(summaryData.servicios).reduce((a,b)=>a+b,0) + 
+                                          summaryData.ingresosOtros.inversiones + 
+                                          summaryData.ingresosOtros.inversionRetiro + 
+                                          (summaryData.ingresosOtros.sobrantes || 0) +
+                                          metrics.totalIngresoTiendaSistema + 
+                                          saldoAnterior) - 
+                                         (Object.values(summaryData.egresos).reduce((a,b)=>a+b,0));
+                    const diferenciaCierre = efectivoReal - sistemaNeto;
+                    
+                    return (
+                      <>
+                        <div className="flex flex-col space-y-0.5 text-center md:text-left">
+                          <span className="text-[9px] text-gray-400 font-bold uppercase tracking-[0.2em]">Resultado Neto (Sistema)</span>
+                          <div className="text-xl md:text-2xl font-black text-white flex items-center justify-center md:justify-start gap-2">
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-300">
+                              {formatCurrency(sistemaNeto)}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div 
+                          onClick={() => setIsEfectivoModalOpen(true)}
+                          className="flex flex-col space-y-0.5 text-center md:text-left cursor-pointer hover:bg-gray-800/60 transition-all bg-gray-800/40 p-2.5 px-3.5 rounded-xl border border-gray-700/50 shadow-inner group"
+                        >
+                          <span className="text-[9px] text-gray-400 font-bold uppercase tracking-[0.2em] flex items-center gap-1.5 justify-center md:justify-start group-hover:text-blue-400 transition-colors">
+                            💵 Efectivo Real al Cierre
+                          </span>
+                          <div className="text-xl md:text-2xl font-black text-white flex items-center justify-center md:justify-start gap-2">
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-teal-300">
+                              {formatCurrency(efectivoReal)}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col space-y-0.5 text-center md:text-left bg-gray-800/20 p-2.5 px-3.5 rounded-xl border border-gray-800/50">
+                          <span className="text-[9px] text-gray-400 font-bold uppercase tracking-[0.2em]">Diferencia</span>
+                          <div className="text-xl md:text-2xl font-black flex items-center justify-center md:justify-start gap-2">
+                            <span className={diferenciaCierre === 0 ? 'text-gray-300' : diferenciaCierre > 0 ? 'text-green-400' : 'text-red-500'}>
+                              {diferenciaCierre > 0 ? '+' : ''}{formatCurrency(diferenciaCierre)}
+                            </span>
+                          </div>
+                        </div>
+                      </>
+                    );
+                  })()}
                 </div>
                 
-                <div className="flex flex-col sm:flex-row gap-4 mt-6 md:mt-0">
+                <div className="flex flex-col sm:flex-row gap-3 mt-4 md:mt-0">
                   <button 
                     onClick={handleCerrarDia}
-                    className="px-8 py-4 bg-white text-gray-900 font-black rounded-2xl hover:bg-gray-100 transition-all transform active:scale-95 shadow-[0_10px_20px_rgba(255,255,255,0.1)] flex items-center gap-3"
+                    className="px-5 py-3 bg-white text-gray-900 text-xs font-black rounded-xl hover:bg-gray-100 transition-all transform active:scale-95 shadow-[0_10px_20px_rgba(255,255,255,0.1)] flex items-center gap-2"
                   >
-                    <Building2 size={20} />
+                    <Building2 size={16} />
                     GUARDAR CIERRE
                   </button>
                 </div>
@@ -974,7 +1270,14 @@ export default function ResumenPage() {
               <tr className="border-b">
                 <th className="px-4 py-2 text-left">Fecha</th>
                 <th className="px-4 py-2 text-left">Cajero</th>
-                <th className="px-4 py-2 text-left">Caja</th>
+                {detailModal.type === 'credito' ? (
+                  <>
+                    <th className="px-4 py-2 text-left">Cliente</th>
+                    <th className="px-4 py-2 text-left">Descripción</th>
+                  </>
+                ) : (
+                  <th className="px-4 py-2 text-left">Caja</th>
+                )}
                 <th className="px-4 py-2 text-right">Monto</th>
               </tr>
             </thead>
@@ -987,14 +1290,21 @@ export default function ResumenPage() {
                         {new Date(m.fecha).toLocaleDateString()}
                       </td>
                       <td className="px-4 py-2 font-bold text-gray-700">{m.cajero || m.usuario || 'N/A'}</td>
-                      <td className="px-4 py-2 text-gray-400">{m.caja}</td>
+                      {detailModal.type === 'credito' ? (
+                        <>
+                          <td className="px-4 py-2 text-gray-700 font-semibold">{m.creditoDetalles?.cliente || 'N/A'}</td>
+                          <td className="px-4 py-2 text-gray-500">{m.creditoDetalles?.descripcion || 'N/A'}</td>
+                        </>
+                      ) : (
+                        <td className="px-4 py-2 text-gray-400">{m.caja}</td>
+                      )}
                       <td className="px-4 py-2 text-right text-gray-900 font-black">
                         {formatCurrency(getAmountLabel(m, detailModal.type))}
                       </td>
                     </tr>
                   ))}
                   <tr className="bg-gray-100 font-black text-gray-900 border-t-2">
-                    <td colSpan="3" className="px-4 py-3 text-right uppercase tracking-tighter">Total en Detalle:</td>
+                    <td colSpan={detailModal.type === 'credito' ? 4 : 3} className="px-4 py-3 text-right uppercase tracking-tighter">Total en Detalle:</td>
                     <td className="px-4 py-3 text-right text-lg">
                       {formatCurrency(detailModal.data.reduce((acc, m) => acc + (getAmountLabel(m, detailModal.type) || 0), 0))}
                     </td>
@@ -1002,16 +1312,157 @@ export default function ResumenPage() {
                 </>
               ) : (
                 <tr>
-                  <td colSpan="4" className="text-center py-10 text-gray-400 italic">No hay movimientos registrados para esta métrica.</td>
+                  <td colSpan={detailModal.type === 'credito' ? 5 : 4} className="text-center py-10 text-gray-400 italic">No hay movimientos registrados para esta métrica.</td>
                 </tr>
               )}
             </tbody>
           </table>
         </div>
-        <div className="mt-4 text-center">
-            <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">
-                Vista de Auditoría de Tesorería • Hojas de Cálculo (Spreadsheet)
-            </p>
+        <div className="mt-5 pt-4 border-t flex flex-col sm:flex-row justify-between items-center gap-3">
+          <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">
+            Vista de Auditoría de Tesorería • Hojas de Cálculo
+          </p>
+          {detailModal.data.length > 0 && (
+            <button
+              onClick={() => exportDetailPDF(detailModal.title, detailModal.data, detailModal.type, { start: startDate, end: endDate })}
+              className="px-4 py-2 bg-red-700 hover:bg-red-800 text-white text-xs font-bold rounded-lg shadow flex items-center gap-1.5 transition-all transform active:scale-95"
+            >
+              📥 Descargar PDF
+            </button>
+          )}
+        </div>
+      </Modal>
+
+      {/* --- MODAL DE EFECTIVO REAL --- */}
+      <Modal
+        isOpen={isEfectivoModalOpen}
+        onClose={() => setIsEfectivoModalOpen(false)}
+        title="Ingreso de Efectivo Real al Cierre"
+      >
+        <div className="space-y-6">
+          <div className="bg-gray-100 p-4 rounded-xl flex items-center justify-between border">
+            <span className="text-sm font-bold text-gray-700 uppercase">Total Efectivo Real:</span>
+            <span className="text-xl font-black text-gray-900">{formatCurrency(efectivoReal)}</span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* GUARANÍES DESGLOSE */}
+            <div>
+              <h4 className="text-sm font-black text-gray-800 uppercase border-b pb-2 mb-4">Efectivo Guaraníes (Gs.)</h4>
+              <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2">
+                {CONFIG.denominaciones.map((den) => {
+                  const val = den.valor;
+                  const currentCant = efectivoRealDetalle.efectivoGs?.[val] || '';
+                  return (
+                    <div key={val} className="flex items-center justify-between gap-4">
+                      <span className="text-xs font-bold text-gray-500 w-24 uppercase">Gs. {den.nombre}:</span>
+                      <input
+                        type="text"
+                        placeholder="0"
+                        className="w-24 px-2 py-1 text-sm border rounded text-right font-mono"
+                        value={currentCant}
+                        onChange={(e) => {
+                          const cant = e.target.value.replace(/\D/g, '');
+                          const newDetalle = {
+                            ...efectivoRealDetalle,
+                            efectivoGs: {
+                              ...efectivoRealDetalle.efectivoGs,
+                              [val]: cant === '' ? '' : parseInt(cant, 10)
+                            }
+                          };
+                          setEfectivoRealDetalle(newDetalle);
+                          setEfectivoReal(recalculateEfectivoReal(newDetalle));
+                        }}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* MONEDAS EXTRANJERAS DESGLOSE */}
+            <div>
+              <h4 className="text-sm font-black text-gray-800 uppercase border-b pb-2 mb-4">Moneda Extranjera</h4>
+              <div className="space-y-4">
+                {['usd', 'brl', 'ars'].map((mon) => {
+                  const label = mon === 'usd' ? 'Dólares ($)' : mon === 'brl' ? 'Reales (R$)' : 'Pesos (ARS)';
+                  const currentVal = efectivoRealDetalle.monedasExtranjeras?.[mon] || { cantidad: 0, cotizacion: globalCotizaciones[mon] || 0 };
+                  return (
+                    <div key={mon} className="p-3 bg-gray-50 rounded-lg border space-y-2">
+                      <span className="text-xs font-black text-gray-700 uppercase block">{label}</span>
+                      
+                      <div className="flex items-center gap-3">
+                        <div className="flex-grow">
+                          <label className="text-[10px] text-gray-400 font-bold uppercase block mb-1">Cant.</label>
+                          <input
+                            type="text"
+                            placeholder="0.00"
+                            className="w-full px-2 py-1 text-xs border rounded text-right font-mono"
+                            value={currentVal.cantidad || ''}
+                            onChange={(e) => {
+                              const cantStr = e.target.value.replace(/[^0-9.]/g, '');
+                              const cant = cantStr === '' ? '' : parseFloat(cantStr);
+                              const newDetalle = {
+                                ...efectivoRealDetalle,
+                                monedasExtranjeras: {
+                                  ...efectivoRealDetalle.monedasExtranjeras,
+                                  [mon]: {
+                                    ...currentVal,
+                                    cantidad: cant
+                                  }
+                                }
+                              };
+                              setEfectivoRealDetalle(newDetalle);
+                              setEfectivoReal(recalculateEfectivoReal(newDetalle));
+                            }}
+                          />
+                        </div>
+                        
+                        <div className="w-24">
+                          <label className="text-[10px] text-gray-400 font-bold uppercase block mb-1">Cotiz.</label>
+                          <input
+                            type="text"
+                            placeholder="0"
+                            className="w-full px-2 py-1 text-xs border rounded text-right font-mono bg-gray-100"
+                            value={currentVal.cotizacion || 0}
+                            onChange={(e) => {
+                              const cotStr = e.target.value.replace(/\D/g, '');
+                              const cot = cotStr === '' ? 0 : parseInt(cotStr, 10);
+                              const newDetalle = {
+                                ...efectivoRealDetalle,
+                                monedasExtranjeras: {
+                                  ...efectivoRealDetalle.monedasExtranjeras,
+                                  [mon]: {
+                                    ...currentVal,
+                                    cotizacion: cot
+                                  }
+                                }
+                              };
+                              setEfectivoRealDetalle(newDetalle);
+                              setEfectivoReal(recalculateEfectivoReal(newDetalle));
+                            }}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="text-right text-[10px] text-gray-500 font-bold uppercase">
+                        Equiv: {formatCurrency((currentVal.cantidad || 0) * (currentVal.cotizacion || 0))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-4 border-t flex justify-end">
+            <button
+              onClick={() => setIsEfectivoModalOpen(false)}
+              className="px-6 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700"
+            >
+              Aceptar
+            </button>
+          </div>
         </div>
       </Modal>
 
