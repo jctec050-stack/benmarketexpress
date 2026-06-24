@@ -42,6 +42,12 @@ export default function ResumenPage() {
     descripcion: '',
     montoMin: ''
   })
+  const [creditoFilters, setCreditoFilters] = useState({
+    cajero: '',
+    cliente: '',
+    descripcion: '',
+    montoMin: ''
+  })
 
   // Deposit State
   const [requestedDeposits, setRequestedDeposits] = useState({})
@@ -371,6 +377,22 @@ export default function ResumenPage() {
 
   const filteredEgresosList = [...filteredProveedoresList, ...filteredRetirosList, ...filteredGastosList]
 
+  const filteredCreditMovements = rawMovements
+    .filter(m => (m.ventasCredito || m.ventas_credito || 0) > 0)
+    .filter(m => {
+      const f = creditoFilters
+      const cajero = (m.cajero || m.usuario || '').toLowerCase()
+      const caja = (m.caja || '').toLowerCase()
+      const matchCajero = !f.cajero || cajero.includes(f.cajero.toLowerCase()) || caja.includes(f.cajero.toLowerCase())
+      const cliente = (m.creditoDetalles?.cliente || m.credito_detalles?.cliente || '').toLowerCase()
+      const matchCliente = !f.cliente || cliente.includes(f.cliente.toLowerCase())
+      const descripcion = (m.creditoDetalles?.descripcion || m.credito_detalles?.descripcion || '').toLowerCase()
+      const matchDescripcion = !f.descripcion || descripcion.includes(f.descripcion.toLowerCase())
+      const monto = m.ventasCredito || m.ventas_credito || 0
+      const matchMonto = !f.montoMin || monto >= parseFloat(f.montoMin)
+      return matchCajero && matchCliente && matchDescripcion && matchMonto
+    })
+
 
   const handleFilterChange = (name, value) => {
     setEgresosFilters(prev => ({ ...prev, [name]: value }))
@@ -471,7 +493,7 @@ export default function ResumenPage() {
           </button>
 
           <button 
-            onClick={() => exportResumenPDF(tableData, metrics, { start: startDate, end: endDate }, summaryData, saldoAnterior, requestedDeposits, filteredEgresosList, efectivoReal, rawMovements.filter(m => (m.ventasCredito || m.ventas_credito || 0) > 0))}
+            onClick={() => exportResumenPDF(tableData, metrics, { start: startDate, end: endDate }, summaryData, saldoAnterior, requestedDeposits, filteredEgresosList, efectivoReal, filteredCreditMovements)}
             className="px-4 py-2 bg-red-700 text-white rounded-md hover:bg-red-800 flex items-center gap-2 transform active:scale-95 transition-all shadow-sm"
           >
             📄 PDF
@@ -1139,8 +1161,8 @@ export default function ResumenPage() {
 
             {/* Ventas a Crédito Detalladas */}
             {(() => {
-              const creditMovements = rawMovements.filter(m => (m.ventasCredito || m.ventas_credito || 0) > 0);
-              if (creditMovements.length === 0) return null;
+              const hasCredits = rawMovements.some(m => (m.ventasCredito || m.ventas_credito || 0) > 0);
+              if (!hasCredits) return null;
               
               return (
                 <div className="w-full max-w-3xl mt-8 animate-fade-in">
@@ -1162,32 +1184,83 @@ export default function ResumenPage() {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-100">
-                        {creditMovements.map((m, i) => (
-                          <tr key={i} className="hover:bg-gray-50 transition-colors">
-                            <td className="px-4 py-3 text-gray-500">
-                              {new Date(m.fecha).toLocaleDateString()}
-                            </td>
-                            <td className="px-4 py-3">
-                              <div className="font-bold text-gray-700">{m.cajero || m.usuario || 'N/A'}</div>
-                              <div className="text-[10px] text-gray-400">{m.caja || 'N/A'}</div>
-                            </td>
-                            <td className="px-4 py-3 font-semibold text-gray-700">
-                              {m.creditoDetalles?.cliente || m.credito_detalles?.cliente || 'N/A'}
-                            </td>
-                            <td className="px-4 py-3 text-gray-500">
-                              {m.creditoDetalles?.descripcion || m.credito_detalles?.descripcion || 'N/A'}
-                            </td>
-                            <td className="px-4 py-3 text-right text-gray-900 font-bold">
-                              {formatCurrency(m.ventasCredito || m.ventas_credito || 0)}
-                            </td>
-                          </tr>
-                        ))}
-                        <tr className="bg-yellow-50/50 font-black border-t-2 border-yellow-100">
-                          <td colSpan="4" className="px-4 py-3 uppercase text-yellow-800 text-right tracking-wider text-xs">Total Créditos:</td>
-                          <td className="px-4 py-3 text-right text-yellow-750 text-sm">
-                            {formatCurrency(creditMovements.reduce((acc, m) => acc + (m.ventasCredito || m.ventas_credito || 0), 0))}
+                        {/* FILTERS ROW */}
+                        <tr className="bg-gray-50 border-b">
+                          <td className="px-4 py-2"></td>
+                          <td className="px-4 py-2">
+                            <input 
+                              type="text" 
+                              placeholder="Filtrar..."
+                              className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:border-blue-500 outline-none font-normal"
+                              value={creditoFilters.cajero}
+                              onChange={(e) => setCreditoFilters(prev => ({ ...prev, cajero: e.target.value }))}
+                            />
+                          </td>
+                          <td className="px-4 py-2">
+                            <input 
+                              type="text" 
+                              placeholder="Filtrar..."
+                              className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:border-blue-500 outline-none font-normal"
+                              value={creditoFilters.cliente}
+                              onChange={(e) => setCreditoFilters(prev => ({ ...prev, cliente: e.target.value }))}
+                            />
+                          </td>
+                          <td className="px-4 py-2">
+                            <input 
+                              type="text" 
+                              placeholder="Filtrar..."
+                              className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:border-blue-500 outline-none font-normal"
+                              value={creditoFilters.descripcion}
+                              onChange={(e) => setCreditoFilters(prev => ({ ...prev, descripcion: e.target.value }))}
+                            />
+                          </td>
+                          <td className="px-4 py-2">
+                            <input 
+                              type="number" 
+                              placeholder="Min..."
+                              className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:border-blue-500 outline-none font-normal"
+                              value={creditoFilters.montoMin}
+                              onChange={(e) => setCreditoFilters(prev => ({ ...prev, montoMin: e.target.value }))}
+                            />
                           </td>
                         </tr>
+
+                        {filteredCreditMovements.length > 0 ? (
+                          <>
+                            {filteredCreditMovements.map((m, i) => (
+                              <tr key={i} className="hover:bg-gray-50 transition-colors">
+                                <td className="px-4 py-3 text-gray-500">
+                                  {new Date(m.fecha).toLocaleDateString()}
+                                </td>
+                                <td className="px-4 py-3">
+                                  <div className="font-bold text-gray-700">{m.cajero || m.usuario || 'N/A'}</div>
+                                  <div className="text-[10px] text-gray-400">{m.caja || 'N/A'}</div>
+                                </td>
+                                <td className="px-4 py-3 font-semibold text-gray-700">
+                                  {m.creditoDetalles?.cliente || m.credito_detalles?.cliente || 'N/A'}
+                                </td>
+                                <td className="px-4 py-3 text-gray-500">
+                                  {m.creditoDetalles?.descripcion || m.credito_detalles?.descripcion || 'N/A'}
+                                </td>
+                                <td className="px-4 py-3 text-right text-gray-900 font-bold">
+                                  {formatCurrency(m.ventasCredito || m.ventas_credito || 0)}
+                                </td>
+                              </tr>
+                            ))}
+                            <tr className="bg-yellow-50/50 font-black border-t-2 border-yellow-100">
+                              <td colSpan="4" className="px-4 py-3 uppercase text-yellow-800 text-right tracking-wider text-xs">Total Créditos:</td>
+                              <td className="px-4 py-3 text-right text-yellow-750 text-sm">
+                                {formatCurrency(filteredCreditMovements.reduce((acc, m) => acc + (m.ventasCredito || m.ventas_credito || 0), 0))}
+                              </td>
+                            </tr>
+                          </>
+                        ) : (
+                          <tr>
+                            <td colSpan="5" className="text-center py-8 text-gray-500 font-medium italic">
+                              No hay ventas a crédito que coincidan con los filtros.
+                            </td>
+                          </tr>
+                        )}
                       </tbody>
                     </table>
                   </div>
