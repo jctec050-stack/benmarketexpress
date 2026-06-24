@@ -1136,6 +1136,64 @@ export default function ResumenPage() {
                 ))}
               </div>
             </div>
+
+            {/* Ventas a Crédito Detalladas */}
+            {(() => {
+              const creditMovements = rawMovements.filter(m => (m.ventasCredito || m.ventas_credito || 0) > 0);
+              if (creditMovements.length === 0) return null;
+              
+              return (
+                <div className="w-full max-w-3xl mt-8 animate-fade-in">
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="h-px flex-1 bg-gray-200"></div>
+                    <h4 className="text-gray-400 font-black uppercase text-[10px] tracking-[0.3em]">Detalle Ventas a Crédito</h4>
+                    <div className="h-px flex-1 bg-gray-200"></div>
+                  </div>
+                  
+                  <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <table className="w-full text-xs text-left">
+                      <thead className="bg-gray-50 text-gray-600 uppercase font-bold">
+                        <tr>
+                          <th className="px-4 py-3">Fecha</th>
+                          <th className="px-4 py-3">Cajero / Caja</th>
+                          <th className="px-4 py-3">Cliente</th>
+                          <th className="px-4 py-3">Descripción</th>
+                          <th className="px-4 py-3 text-right">Monto</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100">
+                        {creditMovements.map((m, i) => (
+                          <tr key={i} className="hover:bg-gray-50 transition-colors">
+                            <td className="px-4 py-3 text-gray-500">
+                              {new Date(m.fecha).toLocaleDateString()}
+                            </td>
+                            <td className="px-4 py-3">
+                              <div className="font-bold text-gray-700">{m.cajero || m.usuario || 'N/A'}</div>
+                              <div className="text-[10px] text-gray-400">{m.caja || 'N/A'}</div>
+                            </td>
+                            <td className="px-4 py-3 font-semibold text-gray-700">
+                              {m.creditoDetalles?.cliente || m.credito_detalles?.cliente || 'N/A'}
+                            </td>
+                            <td className="px-4 py-3 text-gray-500">
+                              {m.creditoDetalles?.descripcion || m.credito_detalles?.descripcion || 'N/A'}
+                            </td>
+                            <td className="px-4 py-3 text-right text-gray-900 font-bold">
+                              {formatCurrency(m.ventasCredito || m.ventas_credito || 0)}
+                            </td>
+                          </tr>
+                        ))}
+                        <tr className="bg-yellow-50/50 font-black border-t-2 border-yellow-100">
+                          <td colSpan="4" className="px-4 py-3 uppercase text-yellow-800 text-right tracking-wider text-xs">Total Créditos:</td>
+                          <td className="px-4 py-3 text-right text-yellow-750 text-sm">
+                            {formatCurrency(creditMovements.reduce((acc, m) => acc + (m.ventasCredito || m.ventas_credito || 0), 0))}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         )}
 
