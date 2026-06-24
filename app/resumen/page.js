@@ -84,6 +84,13 @@ export default function ResumenPage() {
     }
   }, [user, profile, authLoading, router])
 
+  // Force "Todas las cajas" for tesoreria role
+  useEffect(() => {
+    if (profile?.rol === 'tesoreria' && selectedCaja !== 'Todas las cajas') {
+      setSelectedCaja('Todas las cajas')
+    }
+  }, [profile, selectedCaja])
+
   // Fetch Data
   useEffect(() => {
     if (user) {
@@ -467,7 +474,8 @@ export default function ResumenPage() {
             <select 
               value={selectedCaja} 
               onChange={(e) => setSelectedCaja(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md"
+              disabled={profile?.rol === 'tesoreria'}
+              className="px-3 py-2 border border-gray-300 rounded-md disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
             >
               <option value="Todas las cajas">Todas las cajas</option>
               <option value="Caja 1">Caja 1</option>
