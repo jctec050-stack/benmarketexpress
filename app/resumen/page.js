@@ -471,7 +471,7 @@ export default function ResumenPage() {
           </button>
 
           <button 
-            onClick={() => exportResumenPDF(tableData, metrics, { start: startDate, end: endDate }, summaryData, saldoAnterior, requestedDeposits, filteredEgresosList, efectivoReal)}
+            onClick={() => exportResumenPDF(tableData, metrics, { start: startDate, end: endDate }, summaryData, saldoAnterior, requestedDeposits, filteredEgresosList, efectivoReal, rawMovements.filter(m => (m.ventasCredito || m.ventas_credito || 0) > 0))}
             className="px-4 py-2 bg-red-700 text-white rounded-md hover:bg-red-800 flex items-center gap-2 transform active:scale-95 transition-all shadow-sm"
           >
             📄 PDF
