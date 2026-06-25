@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { parseCurrency, formatInputNumber } from '@/lib/utils'
 import { useNotifications } from '@/context/NotificationContext'
+import { getServicios } from '@/lib/config'
 
 export default function OperacionForm({ onSubmit, nextReceiptNumber, initialData = null, onCancelEdit }) {
   const { error: notifyError, warning, success } = useNotifications()
@@ -71,10 +72,16 @@ export default function OperacionForm({ onSubmit, nextReceiptNumber, initialData
   const handleChange = (e) => {
     const { name, value, type } = e.target
     const finalValue = (type === 'text' || type === 'textarea') ? value.toUpperCase() : value
-    setFormData(prev => ({
-      ...prev,
-      [name]: finalValue
-    }))
+    setFormData(prev => {
+      const updated = {
+        ...prev,
+        [name]: finalValue
+      }
+      if (name === 'tipo') {
+        updated.descripcion = ''
+      }
+      return updated
+    })
   }
 
   const handleMontoChange = (e) => {
@@ -202,7 +209,7 @@ export default function OperacionForm({ onSubmit, nextReceiptNumber, initialData
            It seems it was hidden by default and maybe shown by some JS? 
            I'll keep it visible if it has value or maybe just always visible as optional.
            Let's make it conditional on 'transferencia' or 'egreso' just in case.
-        */}
+         */}
         {(formData.tipo === 'transferencia' || formData.tipo === 'egreso' || formData.tipo === 'operacion') && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in">
             <div>
@@ -242,15 +249,32 @@ export default function OperacionForm({ onSubmit, nextReceiptNumber, initialData
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Descripción
           </label>
-          <input
-            type="text"
-            name="descripcion"
-            required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-gray-500 focus:border-gray-500 uppercase"
-            placeholder="Descripción detallada"
-            value={formData.descripcion}
-            onChange={handleChange}
-          />
+          {formData.tipo === 'deposito-bocas' ? (
+            <select
+              name="descripcion"
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-gray-500 focus:border-gray-500 uppercase font-medium text-gray-800"
+              value={formData.descripcion}
+              onChange={handleChange}
+            >
+              <option value="">-- SELECCIONE BOCA DE COBRANZA --</option>
+              {getServicios().map((serv) => (
+                <option key={serv} value={serv.toUpperCase()}>
+                  {serv.toUpperCase()}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <input
+              type="text"
+              name="descripcion"
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-gray-500 focus:border-gray-500 uppercase"
+              placeholder="Descripción detallada"
+              value={formData.descripcion}
+              onChange={handleChange}
+            />
+          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
