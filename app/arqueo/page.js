@@ -542,7 +542,8 @@ export default function ArqueoPage() {
               type="date"
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
-              className="mt-1 text-gray-600 bg-transparent border-none cursor-pointer hover:bg-gray-100 px-2 py-1 rounded -ml-2 focus:ring-0 focus:outline-none"
+              disabled={isCajero && !!selectedDate}
+              className="mt-1 text-gray-600 bg-transparent border-none cursor-pointer hover:bg-gray-100 px-2 py-1 rounded -ml-2 focus:ring-0 focus:outline-none disabled:opacity-75 disabled:cursor-not-allowed"
             />
           </div>
 

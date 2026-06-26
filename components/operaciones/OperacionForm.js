@@ -4,11 +4,17 @@ import { useState, useEffect } from 'react'
 import { parseCurrency, formatInputNumber } from '@/lib/utils'
 import { useNotifications } from '@/context/NotificationContext'
 import { getServicios } from '@/lib/config'
+import { useData } from '@/context/DataContext'
+import { useAuth } from '@/context/AuthContext'
 
 export default function OperacionForm({ onSubmit, nextReceiptNumber, initialData = null, onCancelEdit }) {
   const { error: notifyError, warning, success } = useNotifications()
+  const { selectedDate } = useData()
+  const { profile } = useAuth()
+  const isCajero = profile?.rol === 'cajero'
+
   const [formData, setFormData] = useState({
-    fecha: (() => {
+    fecha: selectedDate || (() => {
       const now = new Date()
       const tzOffsetMs = now.getTimezoneOffset() * 60000
       return new Date(now.getTime() - tzOffsetMs).toISOString().slice(0, 10)
@@ -46,7 +52,7 @@ export default function OperacionForm({ onSubmit, nextReceiptNumber, initialData
     } else {
       // Reset to default
       setFormData({
-        fecha: (() => {
+        fecha: selectedDate || (() => {
           const now = new Date()
           const tzOffsetMs = now.getTimezoneOffset() * 60000
           return new Date(now.getTime() - tzOffsetMs).toISOString().slice(0, 10)
@@ -61,13 +67,19 @@ export default function OperacionForm({ onSubmit, nextReceiptNumber, initialData
       })
       setMotivoEdicion('')
     }
-  }, [initialData])
+  }, [initialData, selectedDate])
 
   useEffect(() => {
     if (nextReceiptNumber && formData.tipo === 'operacion' && !initialData) {
       setFormData(prev => ({ ...prev, numeroRecibo: nextReceiptNumber }))
     }
   }, [nextReceiptNumber, formData.tipo, initialData])
+
+  useEffect(() => {
+    if (!initialData && selectedDate) {
+      setFormData(prev => ({ ...prev, fecha: selectedDate }))
+    }
+  }, [selectedDate, initialData])
 
   const handleChange = (e) => {
     const { name, value, type } = e.target
@@ -174,7 +186,8 @@ export default function OperacionForm({ onSubmit, nextReceiptNumber, initialData
             type="date"
             name="fecha"
             required
-            className="w-full md:w-64 px-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-gray-500 focus:border-gray-500"
+            disabled={isCajero && !!selectedDate}
+            className="w-full md:w-64 px-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-gray-500 focus:border-gray-500 disabled:opacity-75 disabled:cursor-not-allowed"
             value={formData.fecha}
             onChange={handleChange}
           />

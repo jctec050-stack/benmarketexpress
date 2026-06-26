@@ -52,7 +52,8 @@ export default function EgresosList({
               type="date" 
               value={dateFilter || ''} 
               onChange={(e) => setDateFilter && setDateFilter(e.target.value)}
-              className="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 outline-none focus:border-red-500 transition-all"
+              disabled={isCajero && !!dateFilter}
+              className="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 outline-none focus:border-red-500 transition-all disabled:opacity-75 disabled:cursor-not-allowed"
             />
             {!isCajero ? (
               <select 

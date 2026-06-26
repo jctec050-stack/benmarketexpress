@@ -85,6 +85,12 @@ export default function EgresoForm({ onSubmit, initialData = null, onCancelEdit 
     }
   }, [formData.categoria, initialData])
 
+  useEffect(() => {
+    if (!initialData && selectedDate) {
+      setFormData(prev => ({ ...prev, fecha: selectedDate }))
+    }
+  }, [selectedDate, initialData])
+
   const handleSubmit = (e) => {
     e.preventDefault()
 

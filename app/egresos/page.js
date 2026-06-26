@@ -155,7 +155,8 @@ export default function EgresosPage() {
                   type="date"
                   value={selectedDate}
                   onChange={(e) => setSelectedDate(e.target.value)}
-                  className="text-gray-700 bg-transparent border-none cursor-pointer font-bold text-xs focus:ring-0 focus:outline-none p-0"
+                  disabled={isCajero && !!selectedDate}
+                  className="text-gray-700 bg-transparent border-none cursor-pointer font-bold text-xs focus:ring-0 focus:outline-none p-0 disabled:opacity-75 disabled:cursor-not-allowed"
                 />
              </div>
 

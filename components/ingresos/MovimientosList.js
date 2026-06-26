@@ -58,7 +58,8 @@ export default function MovimientosList({
               type="date" 
               value={dateFilter || ''} 
               onChange={(e) => setDateFilter && setDateFilter(e.target.value)}
-              className="px-3 py-1.5 border border-gray-300 rounded-md text-sm text-gray-700 focus:ring-blue-500 focus:border-blue-500"
+              disabled={isCajero && !!dateFilter}
+              className="px-3 py-1.5 border border-gray-300 rounded-md text-sm text-gray-700 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-75 disabled:cursor-not-allowed"
             />
               {!isCajero ? (
                 <select 

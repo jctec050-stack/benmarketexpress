@@ -205,7 +205,8 @@ export default function Dashboard() {
                 type="date"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
-                className="text-gray-800 bg-transparent border-none cursor-pointer font-bold text-sm focus:ring-0 focus:outline-none p-0 mt-0.5"
+                disabled={isCajero && !!selectedDate}
+                className="text-gray-800 bg-transparent border-none cursor-pointer font-bold text-sm focus:ring-0 focus:outline-none p-0 mt-0.5 disabled:opacity-75 disabled:cursor-not-allowed"
               />
             </div>
 
