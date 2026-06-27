@@ -693,7 +693,7 @@ export default function ArqueoPage() {
                 </tr>
               </thead>
               <tbody>
-                {['apLote', 'aquiPago', 'expressLote', 'wepa', 'pasajeNsa', 'encomiendaNsa', 'apostala'].map(key => {
+                {['apLote', 'aquiPago', 'expressLote', 'wepa', 'pasajeNsa', 'encomiendaNsa', 'apostala', 'practipago'].map(key => {
                   const s = displayData.servicios[key]
                   if (!s || (s.monto === 0 && s.tarjeta === 0)) return null
                   return (
