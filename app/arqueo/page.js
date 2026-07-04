@@ -11,6 +11,7 @@ import { exportArqueoPDF } from '@/lib/pdfExport'
 import { db } from '@/lib/db'
 import { consolidateArqueos } from '@/lib/arqueoConsolidator'
 import { useNotifications } from '@/context/NotificationContext'
+import { RefreshCw } from 'lucide-react'
 
 export default function ArqueoPage() {
   const { user, profile, loading: authLoading } = useAuth()
@@ -30,7 +31,8 @@ export default function ArqueoPage() {
     setSelectedCaja,
     selectedCajero,
     setSelectedCajero,
-    clearSelectedDate
+    clearSelectedDate,
+    refreshData
   } = useData()
   const router = useRouter()
 
@@ -53,6 +55,13 @@ export default function ArqueoPage() {
     if (!isCajero) return
     setSelectedCajero(profile?.username || user.email)
   }, [isCajero, profile?.username, user])
+
+  // Refresh data from server on mount and filter changes
+  useEffect(() => {
+    if (user && selectedDate) {
+      refreshData()
+    }
+  }, [selectedDate, selectedCaja, user])
 
   // Selection Logic for Arqueo
   useEffect(() => {
@@ -553,7 +562,19 @@ export default function ArqueoPage() {
                 📊 MODO CONSOLIDADO (Suma de Cajas)
               </span>
             )}
-
+            <button
+              onClick={() => {
+                if (user && selectedDate) {
+                  refreshData()
+                }
+              }}
+              disabled={loadingData || !selectedDate}
+              title="Refrescar Datos"
+              className="px-3 py-1.5 border border-blue-200 text-blue-600 hover:bg-blue-50 font-bold rounded-xl transition-all disabled:opacity-50 flex items-center gap-2 text-xs"
+            >
+              <RefreshCw size={14} className={`${loadingData ? 'animate-spin' : ''}`} />
+              <span>{loadingData ? 'Actualizando...' : 'Actualizar Vista'}</span>
+            </button>
           </div>
         </div>
 

@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState, useCallback } from 'react'
 import { db } from '@/lib/db'
 import { useAuth } from './AuthContext'
 
@@ -61,27 +61,18 @@ export const DataProvider = ({ children }) => {
   }
 
   // Fetch data when user, date, caja or cajero changes
-  useEffect(() => {
-    if (user) {
-      refreshData()
-    }
-  }, [user, selectedDate, selectedCaja, selectedCajero, profile])
-
-  // Sync listener
-  useEffect(() => {
-    const handleOnline = () => {
-      console.log('Online: Syncing data...')
-      db.syncOfflineData().then(({ synced }) => {
-        if (synced > 0) refreshData()
-      })
-    }
-
-    window.addEventListener('online', handleOnline)
-    return () => window.removeEventListener('online', handleOnline)
-  }, [])
-  const refreshData = async () => {
+  const refreshData = useCallback(async () => {
     setLoadingData(true)
     try {
+      // Sincronizar datos locales acumulados si hay conexión
+      if (typeof window !== 'undefined' && navigator.onLine) {
+        try {
+          await db.syncOfflineData()
+        } catch (syncErr) {
+          console.warn('Error al sincronizar datos offline en refreshData:', syncErr)
+        }
+      }
+
       const isCajero = profile?.rol === 'cajero'
       const cajaParam = selectedCaja
 
@@ -105,7 +96,27 @@ export const DataProvider = ({ children }) => {
     } finally {
       setLoadingData(false)
     }
-  }
+  }, [selectedDate, selectedCaja, profile])
+
+  // Fetch data when user, date, caja or cajero changes
+  useEffect(() => {
+    if (user) {
+      refreshData()
+    }
+  }, [user, selectedDate, selectedCaja, selectedCajero, profile, refreshData])
+
+  // Sync listener
+  useEffect(() => {
+    const handleOnline = () => {
+      console.log('Online: Syncing data...')
+      db.syncOfflineData().then(({ synced }) => {
+        if (synced > 0) refreshData()
+      })
+    }
+
+    window.addEventListener('online', handleOnline)
+    return () => window.removeEventListener('online', handleOnline)
+  }, [refreshData])
 
   // CRUD Wrappers that update local state immediately (Optimistic UI could be added here)
   const addIngreso = async (item) => {
