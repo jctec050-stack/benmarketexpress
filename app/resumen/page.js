@@ -128,6 +128,52 @@ export default function ResumenPage() {
       const arqueosData = resArqueos.data || []
       const recaudacionData = resRecaudacion || [] // array
 
+      // Extract egresos/gastos from operations in movimientos
+      const opsEgresos = combinedMovs.filter(m => {
+        const isIngreso = !m.tipo || m.tipo === 'ingreso' || m.tipo === 'deposito-inversiones' || m.tipo === 'inversion-retiro' || m.tipo === 'sobrante' || (m.tipo === 'operacion' && m.categoria === 'SOBRANTE DE CAJA');
+        return !isIngreso;
+      }).map(m => {
+        let cat = m.categoria;
+        if (m.tipo === 'operacion' || cat === 'Deposito/Retiro bancario') {
+          cat = 'Deposito Bancario-No inversion';
+        } else if (m.tipo === 'deposito-bocas') {
+          cat = `DEP. BOCAS - ${m.descripcion || 'S/D'}`;
+        } else if (m.tipo === 'faltante' || m.categoria === 'FALTANTE DE CAJA') {
+          cat = 'Faltantes de Caja';
+        } else if (!cat) {
+          cat = 'Gastos Administrativos';
+        } else {
+          const lowerCat = cat.toLowerCase();
+          if (lowerCat === 'cobros c/ tarjetas' || lowerCat === 'cobros c/ transferencia' || lowerCat === 'gastos administrativos') {
+            cat = 'Gastos Administrativos';
+          }
+        }
+        return {
+          ...m,
+          monto: Math.abs(m.monto || 0),
+          cajero: m.cajero || m.usuario || 'N/A',
+          categoria: cat
+        };
+      })
+
+      // Normalize raw egresos_caja categories as well so that filtering is unified
+      const normalizedRawEgresos = egresosData.map(e => {
+        let cat = e.categoria || 'Gastos Varios';
+        const lowerCat = cat.toLowerCase();
+        if (lowerCat === 'cobros c/ tarjetas' || lowerCat === 'cobros c/ transferencia' || lowerCat === 'gastos administrativos') {
+          cat = 'Gastos Administrativos';
+        }
+        return {
+          ...e,
+          categoria: cat
+        };
+      })
+
+      const combinedEgresos = [
+        ...normalizedRawEgresos,
+        ...opsEgresos
+      ]
+
       // 2. Process Data
       const processed = processResumenData(combinedMovs, arqueosData, egresosData, recaudacionData, selectedCaja)
       
@@ -136,7 +182,7 @@ export default function ResumenPage() {
 
       setMetrics(processed.metrics)
       setTableData(processed.tableData)
-      setEgresosList(egresosData)
+      setEgresosList(combinedEgresos)
       setSummaryData(processed.summaryData)
       setRawMovements(combinedMovs)
 
@@ -371,7 +417,7 @@ export default function ResumenPage() {
     })
 
   const filteredGastosList = egresosList
-    .filter(e => e.categoria !== 'Pago a Proveedor' && e.categoria !== 'Retiro de Fondos')
+    .filter(e => e.categoria === 'Gastos Administrativos')
     .filter(e => {
       const f = egresosFilters
       const matchCajero = !f.cajero || (e.cajero || '').toLowerCase().includes(f.cajero.toLowerCase())
