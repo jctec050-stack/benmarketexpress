@@ -21,6 +21,7 @@ export default function Navbar() {
     navLinks.splice(2, 0, { href: '/operaciones', label: 'Operaciones' })
     navLinks.push({ href: '/resumen', label: 'Resumen Tesoreria' })
     navLinks.push({ href: '/resumen-servicios', label: 'Resumen Servicios' })
+    navLinks.push({ href: '/resumen-recaudaciones', label: 'Resumen Recaudaciones' })
   }
 
   return (
