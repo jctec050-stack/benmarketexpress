@@ -83,6 +83,25 @@ export default function LoginPage() {
       // Force immediate context update
       setSelectedCaja(caja)
 
+      // 6. Registrar conexión del dispositivo
+      try {
+        const devRes = await fetch('/api/device-info')
+        if (devRes.ok) {
+          const devInfo = await devRes.json()
+          await supabase.from('conexiones_dispositivos').insert([{
+            usuario_id: data.user.id,
+            ip_address: devInfo.ip,
+            browser: devInfo.browser,
+            os: devInfo.os,
+            device_type: devInfo.deviceType,
+            user_agent: devInfo.rawUserAgent
+          }])
+        }
+      } catch (logErr) {
+        console.error('Error al registrar dispositivo:', logErr)
+        // No bloqueamos el login si esto falla
+      }
+
       router.push('/')
       
     } catch (err) {
