@@ -6,6 +6,7 @@ import { useAuth } from '@/context/AuthContext'
 import { db } from '@/lib/db'
 import { formatCurrency } from '@/lib/utils'
 import { processResumenData } from '@/lib/resumenLogic'
+import { exportResumenRecaudacionesPDF } from '@/lib/pdfExport'
 
 export default function ResumenRecaudacionesPage() {
   const { user, profile, loading: authLoading } = useAuth()
@@ -211,6 +212,25 @@ export default function ResumenRecaudacionesPage() {
             className="px-5 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
           >
             {loading ? 'Cargando...' : 'Actualizar'}
+          </button>
+
+          <div className="flex-grow"></div>
+
+          <button
+            id="recaudaciones-export-pdf"
+            onClick={() => exportResumenRecaudacionesPDF({
+              rows: filteredRows,
+              startDate,
+              endDate,
+              cajaFilter,
+              cajeroFilter,
+              totals: { totalIngresoTienda, totalEfectivoIgnis, totalSobrante, totalFaltante }
+            })}
+            disabled={loading || filteredRows.length === 0}
+            className="px-4 py-2 bg-red-700 text-white rounded-md hover:bg-red-800 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transform active:scale-95 transition-all shadow-sm font-medium"
+            title="Descargar reporte en PDF con los datos actuales"
+          >
+            📄 PDF
           </button>
         </div>
 
