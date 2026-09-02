@@ -24,6 +24,10 @@ export default function Navbar() {
     navLinks.push({ href: '/resumen-recaudaciones', label: 'Resumen Recaudaciones' })
   }
 
+  if (profile?.rol === 'admin') {
+    navLinks.push({ href: '/dispositivos', label: 'Dispositivos' })
+  }
+
   return (
     <nav className="sticky top-0 z-50 w-full bg-gradient-to-r from-red-700 to-red-800 shadow-md border-b-4 border-red-900/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
