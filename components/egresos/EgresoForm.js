@@ -100,15 +100,16 @@ export default function EgresoForm({ onSubmit, initialData = null, onCancelEdit 
     }
 
     const egreso = {
+      ...(initialData || {}),
       ...(formData.id ? { id: formData.id } : {}),
-      fecha: formData.fecha || selectedDate,
+      fecha: (initialData?.fecha && initialData.fecha.startsWith(formData.fecha)) ? initialData.fecha : (formData.fecha || selectedDate),
       categoria: formData.categoria,
       descripcion: formData.descripcion,
       monto: formData.monto,
       referencia: formData.referencia,
       receptor: formData.receptor || null,
       numeroRecibo: formData.numeroRecibo || null,
-      arqueado: false,
+      arqueado: initialData?.arqueado !== undefined ? initialData.arqueado : false,
       motivoEdicion: motivoEdicion
     }
 

@@ -140,8 +140,9 @@ export default function OperacionForm({ onSubmit, nextReceiptNumber, initialData
     }
 
     const operacion = {
+      ...(initialData || {}),
       ...(formData.id ? { id: formData.id } : {}),
-      fecha: formData.fecha,
+      fecha: (initialData?.fecha && String(initialData.fecha).startsWith(formData.fecha)) ? initialData.fecha : formData.fecha,
       tipo: dbTipo,
       receptor: formData.receptor || null,
       descripcion: (formData.tipo === 'inversion-retiro' && !formData.descripcion.trim()) ? 'Inversion-Retiro de fondos' : formData.descripcion,
@@ -149,7 +150,7 @@ export default function OperacionForm({ onSubmit, nextReceiptNumber, initialData
       moneda: formData.moneda,
       referencia: formData.referencia || null,
       numeroRecibo: (dbTipo === 'operacion' && formData.numeroRecibo) ? parseInt(formData.numeroRecibo) : null,
-      arqueado: false,
+      arqueado: initialData?.arqueado !== undefined ? initialData.arqueado : false,
       motivoEdicion: motivoEdicion,
       categoria: dbCat
     }

@@ -228,10 +228,11 @@ export default function IngresoForm({ onSubmit, initialData = null, onCancelEdit
   const handleSubmit = async (e) => {
     e.preventDefault()
     
-    // Construct the movement object
+    // Construct the movement object preserving original data (cajero, caja, usuario, etc.)
     const movimiento = {
+      ...(initialData || {}),
       ...(initialData?.id ? { id: initialData.id } : {}),
-      fecha: fecha, // Passed back to parent to handle time append
+      fecha: (initialData?.fecha && initialData.fecha.startsWith(fecha)) ? initialData.fecha : fecha,
       ...(initialData?.arqueado !== undefined ? { arqueado: initialData.arqueado } : {}),
       cotizaciones,
       efectivo,

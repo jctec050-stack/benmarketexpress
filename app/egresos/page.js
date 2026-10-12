@@ -36,18 +36,33 @@ export default function EgresosPage() {
   }, [user, authLoading, router])
 
   const handleAddEgreso = async (egreso) => {
+    const isEditing = !!egreso.id || !!editingEgreso?.id
     // Combine date from form + current time
     const now = new Date()
     const timeString = now.toTimeString().split(' ')[0] // HH:MM:SS
     const baseDate = egreso.fecha ? String(egreso.fecha).split('T')[0] : selectedDate
-    const datetimeString = `${baseDate}T${timeString}`
+    const originalFecha = editingEgreso?.fecha || egreso.fecha
+    const originalBaseDate = originalFecha ? String(originalFecha).split('T')[0] : null
+    const datetimeString = (isEditing && originalFecha && originalBaseDate === baseDate && String(originalFecha).includes('T'))
+      ? originalFecha
+      : `${baseDate}T${timeString}`
+
+    const originalCajero = editingEgreso?.cajero || editingEgreso?.usuario || egreso.cajero || egreso.usuario
+    const originalCaja = editingEgreso?.caja || egreso.caja
 
     const newEgreso = {
       ...egreso,
+      id: egreso.id || editingEgreso?.id,
       fecha: datetimeString,
-      caja: (profile?.rol === 'tesoreria' && !egreso.id) ? 'Tesoreria' : selectedCaja,
-      cajero: profile?.username || user?.email || 'unknown',
-      arqueado: false
+      caja: isEditing 
+        ? (originalCaja || selectedCaja) 
+        : ((profile?.rol === 'tesoreria' && !egreso.id) ? 'Tesoreria' : (egreso.caja || selectedCaja)),
+      cajero: isEditing 
+        ? (originalCajero || profile?.username || user?.email || 'unknown')
+        : (egreso.cajero || profile?.username || user?.email || 'unknown'),
+      arqueado: egreso.arqueado !== undefined 
+        ? egreso.arqueado 
+        : (editingEgreso?.arqueado !== undefined ? editingEgreso.arqueado : false)
     }
     
     const result = await addEgreso(newEgreso)

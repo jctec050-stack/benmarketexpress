@@ -117,6 +117,12 @@ export default function OperacionesList({
                         <span className="mr-1">👤</span>
                         {op.cajero || 'Desconocido'}
                       </span>
+                      {op.historialEdiciones && op.historialEdiciones.length > 0 && (
+                        <span className="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full flex items-center border border-amber-200" title={`Motivo: ${op.historialEdiciones[op.historialEdiciones.length - 1].motivo}`}>
+                          <span className="mr-1">⚠️</span>
+                          Editado por: {op.historialEdiciones[op.historialEdiciones.length - 1].usuario}
+                        </span>
+                      )}
                     </div>
                     
                     <div className="text-sm text-gray-600 space-y-1">

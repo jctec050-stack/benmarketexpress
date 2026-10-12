@@ -67,30 +67,48 @@ export default function Dashboard() {
   }
 
   const handleAddMovimiento = async (movimiento) => {
+    const isEditing = !!movimiento?.id || !!editingMovimiento?.id
     const now = new Date()
     const timeString = now.toTimeString().split(' ')[0] // HH:MM:SS
     
     // Use the date from form (defaulting to selectedDate)
-    const baseDate = movimiento?.fecha || selectedDate
-    const datetimeString = `${baseDate}T${timeString}`
+    const baseDate = movimiento?.fecha ? String(movimiento.fecha).split('T')[0] : selectedDate
+    const originalFecha = editingMovimiento?.fecha || movimiento?.fecha
+    const originalBaseDate = originalFecha ? String(originalFecha).split('T')[0] : null
+    
+    // Si se está editando y la fecha no cambió, preservar la hora exacta original
+    const datetimeString = (isEditing && originalFecha && originalBaseDate === baseDate && String(originalFecha).includes('T'))
+      ? originalFecha
+      : `${baseDate}T${timeString}`
+
     const genId = () => {
       if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID()
       return `${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`
     }
 
+    // Preservar cajero y caja original al editar para no sobrescribir con Tesorería/Administración
+    const originalCajero = editingMovimiento?.cajero || editingMovimiento?.usuario || movimiento?.cajero || movimiento?.usuario
+    const originalCaja = editingMovimiento?.caja || movimiento?.caja
+
     const newMovimiento = {
       ...movimiento,
-      id: movimiento?.id || genId(),
-      fecha: movimiento?.fecha || datetimeString,
-      caja: (profile?.rol === 'tesoreria' && !movimiento?.id) ? 'Tesoreria' : (movimiento?.caja || selectedCaja),
-      cajero: movimiento?.cajero || profile?.username || user?.email || 'unknown',
-      arqueado: movimiento?.arqueado !== undefined ? movimiento.arqueado : false
+      id: movimiento?.id || editingMovimiento?.id || genId(),
+      fecha: datetimeString,
+      caja: isEditing 
+        ? (originalCaja || selectedCaja) 
+        : ((profile?.rol === 'tesoreria') ? 'Tesoreria' : (movimiento?.caja || selectedCaja)),
+      cajero: isEditing
+        ? (originalCajero || profile?.username || user?.email || 'unknown')
+        : (movimiento?.cajero || profile?.username || user?.email || 'unknown'),
+      arqueado: movimiento?.arqueado !== undefined 
+        ? movimiento.arqueado 
+        : (editingMovimiento?.arqueado !== undefined ? editingMovimiento.arqueado : false)
     }
     
     const res = await addIngreso(newMovimiento)
     if (res?.success) {
       setEditingMovimiento(null)
-      success('Éxito', 'Movimiento guardado correctamente.')
+      success('Éxito', isEditing ? 'Movimiento actualizado correctamente.' : 'Movimiento guardado correctamente.')
     } else {
       notifyError('Error al guardar', res?.error || 'No se pudo completar la operación.')
     }

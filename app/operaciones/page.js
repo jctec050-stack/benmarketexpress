@@ -49,20 +49,32 @@ export default function OperacionesPage() {
   }, [user])
 
   const handleAddOperacion = async (operacion) => {
+    const isEditing = !!operacion.id || !!editingOperacion?.id
     // Combine date from form + current time
     const now = new Date()
     const timeString = now.toTimeString().split(' ')[0] // HH:MM:SS
     const baseDate = operacion.fecha ? String(operacion.fecha).split('T')[0] : selectedDate
-    const datetimeString = `${baseDate}T${timeString}`
+    const originalFecha = editingOperacion?.fecha || operacion.fecha
+    const originalBaseDate = originalFecha ? String(originalFecha).split('T')[0] : null
+    const datetimeString = (isEditing && originalFecha && originalBaseDate === baseDate && String(originalFecha).includes('T'))
+      ? originalFecha
+      : `${baseDate}T${timeString}`
+
+    const originalCajero = editingOperacion?.cajero || editingOperacion?.usuario || operacion.cajero || operacion.usuario
+    const originalCaja = editingOperacion?.caja || operacion.caja
 
     // Add metadata
     const newOperacion = {
       ...operacion,
+      id: operacion.id || editingOperacion?.id,
       fecha: datetimeString,
-      caja: (profile?.rol === 'tesoreria' && !editingOperacion?.id) ? 'Tesoreria' : selectedCaja,
-      cajero: profile?.username || user?.email || 'unknown',
-      usuarioId: user?.id,
-      ...(editingOperacion?.id ? { id: editingOperacion.id } : {})
+      caja: isEditing 
+        ? (originalCaja || selectedCaja) 
+        : ((profile?.rol === 'tesoreria' && !editingOperacion?.id) ? 'Tesoreria' : (operacion.caja || selectedCaja)),
+      cajero: isEditing 
+        ? (originalCajero || profile?.username || user?.email || 'unknown') 
+        : (operacion.cajero || profile?.username || user?.email || 'unknown'),
+      usuarioId: isEditing ? (editingOperacion?.usuario_id || editingOperacion?.usuarioId || user?.id) : user?.id
     }
 
     const res = await addMovimiento(newOperacion)
